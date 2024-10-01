@@ -23,11 +23,11 @@ client
 // App & Database
 const dbName = process.env.DB_NAME;
 const app = express();
-const port = process.env.PORT || 3000; // Use port from environment variables or default to 3000
+const port = process.env.PORT || 3000;
 
 // Middleware
-app.use(bodyParser.json());
-app.use(cors());
+app.use(bodyParser.json()); //As the data in sent in the json format
+app.use(cors()); //To avoid cors error at frontend
 
 // Get all the passwords
 app.get("/", async (req, res) => {
@@ -85,13 +85,11 @@ app.delete("/:id", async (req, res) => {
         .json({ success: false, message: "Password not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Password deleted successfully",
-        result,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Password deleted successfully",
+      result,
+    });
   } catch (error) {
     console.error("Error deleting password:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });

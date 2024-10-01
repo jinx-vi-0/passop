@@ -13,7 +13,7 @@ const client = new MongoClient(url);
 client
   .connect()
   .then(() => {
-    console.log("Database connected");
+    console.log("Database connected"); //Succes Message
   })
   .catch((error) => {
     console.error("Database connection failed:", error);

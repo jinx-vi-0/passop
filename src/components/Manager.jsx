@@ -46,12 +46,27 @@ const Manager = () => {
         ? "icons/eye.png"
         : "icons/eyecross.png";
   };
-
   const savePassword = async () => {
+    const passwordValidation = (password) => {
+      const minLength = 8;
+      const hasUpperCase = /[A-Z]/.test(password);
+      const hasLowerCase = /[a-z]/.test(password);
+      const hasNumbers = /\d/.test(password);
+      const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+      
+      return (
+        password.length >= minLength &&
+        hasUpperCase &&
+        hasLowerCase &&
+        hasNumbers &&
+        hasSpecialChars
+      );
+    };
+  
     if (
       form.site.length > 3 &&
       form.username.length > 3 &&
-      form.password.length > 3
+      passwordValidation(form.password)
     ) {
       if (form.id) {
         // Update existing password
@@ -74,7 +89,7 @@ const Manager = () => {
           body: JSON.stringify(newPassword),
         });
       }
-
+  
       setForm({ id: "", site: "", username: "", password: "" });
       toast("Password saved!", {
         position: "top-right",
@@ -87,7 +102,7 @@ const Manager = () => {
         theme: "dark",
       });
     } else {
-      toast("Error: Password not saved!");
+      toast("Error: Password not saved! Ensure the password meets all criteria.");
     }
   };
 

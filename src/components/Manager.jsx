@@ -66,7 +66,7 @@ const Manager = () => {
   
     if (
       form.site.length > 3 &&
-      form.username.length > 3 &&
+      form.username.length >= 3 &&
       passwordValidation(form.password)
     ) {
       if (form.id) {

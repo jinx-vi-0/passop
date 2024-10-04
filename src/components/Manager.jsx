@@ -46,6 +46,27 @@ const Manager = () => {
         ? "icons/eye.png"
         : "icons/eyecross.png";
   };
+  
+  const generatePassword = () => {
+    const lowerCase = 'abcdefghijklmnopqrstuvwxyz';
+    const upperCase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    const symbols = '!@#$%^&*()_+[]{}|;:,.<>?';
+  
+    const allChars = lowerCase + upperCase + numbers + symbols;
+    let generatedPassword = '';
+  
+    for (let i = 0; i < 12; i++) {
+      const randomChar = allChars[Math.floor(Math.random() * allChars.length)];
+      generatedPassword += randomChar;
+    }
+    // Log the generated password
+    console.log(generatedPassword);
+    copyText(generatedPassword);
+    // Set the generated password into the form's password field
+    setForm((prevForm) => ({ ...prevForm, password: generatedPassword }));
+  };
+  
 
   const savePassword = async () => {
     const passwordValidation = (password) => {
@@ -202,6 +223,15 @@ const Manager = () => {
               </span>
             </div>
           </div>
+
+          {/* Add a button to generate a password */}
+          <button
+            onClick={generatePassword}
+            className="bg-green-600 hover:bg-green-600 text-white rounded-full px-4 py-2"
+          >
+            Generate Password
+          </button>
+
           <button
             onClick={savePassword}
             className="flex justify-center items-center gap-2 bg-green-500 hover:bg-green-600 rounded-full px-8 py-2 w-fit border border-green-900"

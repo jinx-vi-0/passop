@@ -20,6 +20,12 @@ const Manager = () => {
     setPasswordArray(passwords);
   };
 
+  // function to add favicon before a website 
+  // domain format examples = google.com || dev.to || youtube.com
+  const getFavicon = (domain) => {
+    return `https://www.google.com/s2/favicons?domain=${domain}&sz=25`;
+  };
+
   useEffect(() => {
     getPasswords();
   }, []);
@@ -233,6 +239,7 @@ const Manager = () => {
                     <tr key={index}>
                       <td className="py-2 border border-white text-center">
                         <div className="flex items-center justify-center">
+                        <img src={getFavicon(item.site)} className="mr-3"/>
                           <a
                             href={item.site}
                             target="_blank"

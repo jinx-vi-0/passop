@@ -28,7 +28,21 @@ const port = process.env.PORT || 3000; // Use port from environment variables or
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
+// Add this function to generate a strong password
+function generateStrongPassword(length = 12) {
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=";
+  let password = "";
+  for (let i = 0; i < length; i++) {
+    password += charset.charAt(Math.floor(Math.random() * charset.length));
+  }
+  return password;
+}
 
+// Add this new route to your Express app
+app.get("/generate-password", (req, res) => {
+  const password = generateStrongPassword();
+  res.json({ password });
+});
 // Get all the passwords
 app.get("/", async (req, res) => {
   try {

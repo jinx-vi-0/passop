@@ -47,6 +47,22 @@ const Manager = () => {
         : "icons/eyecross.png";
   };
 
+  const generateStrongPassword = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/generate-password");
+      const data = await response.json();
+      if (data.password) {
+        setForm({ ...form, password: data.password });
+        toast.success("Strong password generated!");
+      } else {
+        toast.error("Failed to generate password");
+      }
+    } catch (error) {
+      console.error("Error generating password:", error);
+      toast.error("Failed to generate password");
+    }
+  };
+
   const savePassword = async () => {
     const passwordValidation = (password) => {
       const minLength = 8;
@@ -107,7 +123,6 @@ const Manager = () => {
     }
   };
   
-
   const deletePassword = async (id) => {
     const confirmDelete = confirm(
       "Do you really want to delete this password?"
@@ -177,13 +192,13 @@ const Manager = () => {
               name="username"
               id="username"
             />
-            <div className="relative">
+            <div className="relative w-full">
               <input
                 ref={passwordRef}
                 value={form.password}
                 onChange={handleChange}
                 placeholder="Enter Password"
-                className="rounded-full border border-green-500 w-full p-4 py-1"
+                className="rounded-full border border-green-500 w-full p-4 py-1 pr-16"
                 type="password"
                 name="password"
                 id="password"
@@ -200,6 +215,15 @@ const Manager = () => {
                   alt="eye"
                 />
               </span>
+              <button
+                onClick={generateStrongPassword}
+                className="absolute right-10 top-1/2 transform -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1"
+                title="Generate Strong Password"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                </svg>
+              </button>
             </div>
           </div>
           <button

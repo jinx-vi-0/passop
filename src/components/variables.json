@@ -14,5 +14,9 @@
     "noSpaces": {
         "validate": "!/\\s/.test(password)",
         "message": "Password must not contain spaces."
+    },
+    "specialCharacter": {
+        "validate": "/[!@#$%^&*(),.?\":{}|<>]/.test(password)",
+        "message": "Password must contain at least one special character."
     }
 }

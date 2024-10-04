@@ -237,6 +237,15 @@ const Manager = () => {
                       >
                         No spaces
                       </li>
+                      <li
+                        style={{
+                          color: /[!@#$%^&*(),.?\\":{}|<>]/.test(form.password)
+                            ? "green"
+                            : "red",
+                        }}
+                      >
+                        Password must contain at least one special character
+                      </li>
                     </ul>
                   </div>
                 </div>

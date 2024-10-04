@@ -45,16 +45,17 @@ app.get("/", async (req, res) => {
 // Save a password
 app.post("/", async (req, res) => {
   try {
-    const { password } = req.body; // Assuming you're sending only the password field
-    if (!password) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Password is required" });
+    const { site, username, password } = req.body;
+    if (!site || !username || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Site, username, and password are required",
+      });
     }
 
     const db = client.db(dbName);
     const collection = db.collection("passwords");
-    const result = await collection.insertOne({ password });
+    const result = await collection.insertOne({ site, username, password });
     res.status(201).json({ success: true, result });
   } catch (error) {
     console.error("Error saving password:", error);
@@ -85,16 +86,51 @@ app.delete("/:id", async (req, res) => {
         .json({ success: false, message: "Password not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Password deleted successfully",
-        result,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Password deleted successfully",
+      result,
+    });
   } catch (error) {
     console.error("Error deleting password:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
+//Exporting the passwords
+app.get("/export", async (req, res) => {
+  try {
+    const db = client.db(dbName);
+    const passwords = await db.collection("passwords").find({}).toArray();
+
+    res.setHeader("content-Type", "application/json");
+    res.setHeader("content-disposition", "attachment; filename=passwords.json");
+    res.status(200).json(passwords);
+  } catch (error) {
+    console.error("Error exporting passwords:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error exporting the passwords" });
+  }
+});
+
+// Importing the passwords
+app.post("/import", async (req, res) => {
+  try {
+    const passwords = req.body;
+    const db = client.db(dbName);
+    const collection = db.collection("passwords");
+
+    await collection.insertMany(passwords);
+
+    res
+      .status(200)
+      .json({ success: true, message: "Passwords imported successfully" });
+  } catch (error) {
+    console.error("Error importing passwords:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error importing the passwords" });
   }
 });
 

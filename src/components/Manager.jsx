@@ -54,7 +54,7 @@ const Manager = () => {
       const hasLowerCase = /[a-z]/.test(password);
       const hasNumbers = /\d/.test(password);
       const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-      
+
       return (
         password.length >= minLength &&
         hasUpperCase &&
@@ -63,7 +63,7 @@ const Manager = () => {
         hasSpecialChars
       );
     };
-  
+
     if (
       form.site.length > 3 &&
       form.username.length >= 3 &&
@@ -72,17 +72,20 @@ const Manager = () => {
       if (form.id) {
         // Update existing password
         const updatedPasswords = passwordArray.map((item) =>
-          item.id === form.id ? { ...form } : item
+          item._id === form.id ? { ...form } : item
         );
         setPasswordArray(updatedPasswords);
-        await fetch("http://localhost:3000/", {
+        await fetch(`http://localhost:3000/${form.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(form),
         });
       } else {
-        // Add new password
-        const newPassword = { ...form, id: uuidv4() };
+        const newPassword = {
+          site: form.site,
+          username: form.username,
+          password: form.password,
+        };
         setPasswordArray([...passwordArray, newPassword]);
         await fetch("http://localhost:3000/", {
           method: "POST",
@@ -90,7 +93,7 @@ const Manager = () => {
           body: JSON.stringify(newPassword),
         });
       }
-  
+
       setForm({ id: "", site: "", username: "", password: "" });
       toast("Password saved!", {
         position: "top-right",
@@ -103,10 +106,11 @@ const Manager = () => {
         theme: "dark",
       });
     } else {
-      toast("Error: Password not saved! Ensure the password meets all criteria.");
+      toast(
+        "Error: Password not saved! Ensure the password meets all criteria."
+      );
     }
   };
-  
 
   const deletePassword = async (id) => {
     const confirmDelete = confirm(
@@ -139,6 +143,66 @@ const Manager = () => {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  //function to download passwords
+  const downloadPasswords = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/export");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      // Create a temporary link element to trigger download
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "passwords.json";
+      link.click();
+
+      toast("Passwords downloaded!", { theme: "dark" });
+    } catch (error) {
+      console.error("Error downloading passwords:", error);
+      toast("Error downloading passwords", { theme: "dark" });
+    }
+  };
+
+  // function to import passwords
+  const importPasswords = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const fileContent = e.target.result;
+      const passwords = JSON.parse(fileContent);
+
+      // Ensure each password entry contains the correct fields
+      const formattedPasswords = passwords.map((password) => ({
+        site: password.site,
+        username: password.username,
+        password: password.password,
+      }));
+
+      // Send passwords to the backend for import
+      try {
+        const response = await fetch("http://localhost:3000/import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formattedPasswords),
+        });
+
+        if (response.ok) {
+          toast("Passwords imported successfully!", { theme: "dark" });
+          getPasswords(); // Refresh the password list after importing
+        } else {
+          toast("Error importing passwords", { theme: "dark" });
+        }
+      } catch (error) {
+        console.error("Error importing passwords:", error);
+        toast("Error importing passwords", { theme: "dark" });
+      }
+    };
+
+    reader.readAsText(file);
   };
 
   return (
@@ -202,16 +266,56 @@ const Manager = () => {
               </span>
             </div>
           </div>
-          <button
-            onClick={savePassword}
-            className="flex justify-center items-center gap-2 bg-green-500 hover:bg-green-600 rounded-full px-8 py-2 w-fit border border-green-900"
-          >
-            <lord-icon
-              src="https://cdn.lordicon.com/jgnvfzqg.json"
-              trigger="hover"
-            ></lord-icon>
-            Save
-          </button>
+
+          {/* Buttons */}
+          <div className="flex flex-col">
+            <div className="flex justify-center">
+              <button
+                onClick={savePassword}
+                className="flex justify-center items-center gap-2 bg-green-500 hover:bg-green-600 rounded-full px-8 py-2 w-fit border border-green-900"
+              >
+                <lord-icon
+                  src="https://cdn.lordicon.com/jgnvfzqg.json"
+                  trigger="hover"
+                ></lord-icon>
+                Save
+              </button>
+            </div>
+
+            <div className="flex justify-center gap-4 mt-4">
+              <button
+                onClick={downloadPasswords}
+                className="flex justify-center items-center gap-2 bg-green-500 hover:bg-green-600 rounded-full px-8 py-2 w-fit border border-green-900"
+              >
+                <lord-icon
+                  src="https://cdn.lordicon.com/xcrjfuzb.json"
+                  trigger="hover"
+                ></lord-icon>
+                Download Passwords
+              </button>
+
+              <input
+                type="file"
+                accept=".json"
+                onChange={importPasswords}
+                className="hidden"
+                id="upload-passwords-input"
+              />
+
+              <button
+                onClick={() =>
+                  document.getElementById("upload-passwords-input").click()
+                }
+                className="flex justify-center items-center gap-2 bg-green-500 hover:bg-green-600 rounded-full px-8 py-2 w-fit border border-green-900"
+              >
+                <lord-icon
+                  src="https://cdn.lordicon.com/ternnbni.json"
+                  trigger="hover"
+                ></lord-icon>
+                Upload Passwords
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="passwords">

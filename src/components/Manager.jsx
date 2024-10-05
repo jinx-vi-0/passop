@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
+import passwordRules from "./variables.json";
 import "react-toastify/dist/ReactToastify.css";
 
 const Manager = () => {
@@ -13,6 +14,8 @@ const Manager = () => {
     password: "",
   });
   const [passwordArray, setPasswordArray] = useState([]);
+  const [passwordErrors, setPasswordErrors] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
 
   const getPasswords = async () => {
     let req = await fetch("http://localhost:3000/");
@@ -47,30 +50,25 @@ const Manager = () => {
         : "icons/eyecross.png";
   };
 
+  const validatePassword = (password) => {
+    const errors = Object.keys(passwordRules)
+      .map((rule) => {
+        const isValid = eval(passwordRules[rule].validate);
+        return isValid ? null : passwordRules[rule].message;
+      })
+      .filter(Boolean);
+    setPasswordErrors(errors);
+
+    return errors.length === 0;
+  };
+
   const savePassword = async () => {
-    const passwordValidation = (password) => {
-      const minLength = 8;
-      const hasUpperCase = /[A-Z]/.test(password);
-      const hasLowerCase = /[a-z]/.test(password);
-      const hasNumbers = /\d/.test(password);
-      const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-      
-      return (
-        password.length >= minLength &&
-        hasUpperCase &&
-        hasLowerCase &&
-        hasNumbers &&
-        hasSpecialChars
-      );
-    };
-  
     if (
       form.site.length > 3 &&
       form.username.length >= 3 &&
-      passwordValidation(form.password)
+      validatePassword(form.password)
     ) {
       if (form.id) {
-        // Update existing password
         const updatedPasswords = passwordArray.map((item) =>
           item.id === form.id ? { ...form } : item
         );
@@ -81,7 +79,6 @@ const Manager = () => {
           body: JSON.stringify(form),
         });
       } else {
-        // Add new password
         const newPassword = { ...form, id: uuidv4() };
         setPasswordArray([...passwordArray, newPassword]);
         await fetch("http://localhost:3000/", {
@@ -90,7 +87,7 @@ const Manager = () => {
           body: JSON.stringify(newPassword),
         });
       }
-  
+
       setForm({ id: "", site: "", username: "", password: "" });
       toast("Password saved!", {
         position: "top-right",
@@ -103,10 +100,11 @@ const Manager = () => {
         theme: "dark",
       });
     } else {
-      toast("Error: Password not saved! Ensure the password meets all criteria.");
+      toast(
+        "Error: Password not saved! Ensure the password meets all criteria."
+      );
     }
   };
-  
 
   const deletePassword = async (id) => {
     const confirmDelete = confirm(
@@ -139,6 +137,10 @@ const Manager = () => {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    if (e.target.name === "password") {
+      validatePassword(e.target.value);
+      setIsTyping(e.target.value.length > 0);
+    }
   };
 
   return (
@@ -177,29 +179,77 @@ const Manager = () => {
               name="username"
               id="username"
             />
-            <div className="relative">
-              <input
-                ref={passwordRef}
-                value={form.password}
-                onChange={handleChange}
-                placeholder="Enter Password"
-                className="rounded-full border border-green-500 w-full p-4 py-1"
-                type="password"
-                name="password"
-                id="password"
-              />
-              <span
-                className="absolute right-[3px] top-[4px] cursor-pointer"
-                onClick={showPassword}
-              >
-                <img
-                  ref={ref}
-                  className="p-1"
-                  width={26}
-                  src="icons/eye.png"
-                  alt="eye"
+            <div className="flex flex-col relative">
+              <div className="relative">
+                <input
+                  ref={passwordRef}
+                  value={form.password}
+                  onChange={handleChange}
+                  onBlur={() => setIsTyping(false)}
+                  placeholder="Enter Password"
+                  className="rounded-full border border-green-500 w-full p-4 py-1"
+                  type="password"
+                  name="password"
+                  id="password"
                 />
-              </span>
+                <span
+                  className="absolute right-[3px] top-[4px] cursor-pointer"
+                  onClick={showPassword}
+                >
+                  <img
+                    ref={ref}
+                    className="p-1"
+                    width={26}
+                    src="icons/eye.png"
+                    alt="eye"
+                  />
+                </span>
+              </div>
+              {isTyping && (
+                <div className="flex flex-col items-start w-full absolute top-10">
+                  <div className="mt-2 p-2 border rounded bg-gray-100">
+                    <ul>
+                      <li
+                        style={{
+                          color: form.password.length >= 8 ? "green" : "red",
+                        }}
+                      >
+                        8-20 Characters
+                      </li>
+                      <li
+                        style={{
+                          color: /[A-Z]/.test(form.password) ? "green" : "red",
+                        }}
+                      >
+                        At least one capital letter
+                      </li>
+                      <li
+                        style={{
+                          color: /\d/.test(form.password) ? "green" : "red",
+                        }}
+                      >
+                        At least one number
+                      </li>
+                      <li
+                        style={{
+                          color: !/\s/.test(form.password) ? "green" : "red",
+                        }}
+                      >
+                        No spaces
+                      </li>
+                      <li
+                        style={{
+                          color: /[!@#$%^&*(),.?\\":{}|<>]/.test(form.password)
+                            ? "green"
+                            : "red",
+                        }}
+                      >
+                        Password must contain at least one special character
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <button
@@ -213,7 +263,6 @@ const Manager = () => {
             Save
           </button>
         </div>
-
         <div className="passwords">
           <h2 className="font-bold text-2xl py-4">Your Passwords</h2>
           {passwordArray.length === 0 && <div>No passwords to show</div>}

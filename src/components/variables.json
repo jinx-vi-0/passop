@@ -1,0 +1,22 @@
+{
+    "length": {
+        "validate": "password.length >= 8 && password.length <= 20",
+        "message": "Password must be 8-20 characters long."
+    },
+    "capital": {
+        "validate": "/[A-Z]/.test(password)",
+        "message": "Password must contain at least one uppercase letter."
+    },
+    "number": {
+        "validate": "/\\d/.test(password)",
+        "message": "Password must contain at least one number."
+    },
+    "noSpaces": {
+        "validate": "!/\\s/.test(password)",
+        "message": "Password must not contain spaces."
+    },
+    "specialCharacter": {
+        "validate": "/[!@#$%^&*(),.?\":{}|<>]/.test(password)",
+        "message": "Password must contain at least one special character."
+    }
+}

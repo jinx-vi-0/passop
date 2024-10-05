@@ -293,7 +293,7 @@ const Manager = () => {
               src="https://cdn.lordicon.com/jgnvfzqg.json"
               trigger="hover"
             ></lord-icon>
-            Save
+            {form.id ? "Update" : "Save" }
           </button>
         </div>
         <div className="passwords">

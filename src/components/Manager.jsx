@@ -59,10 +59,7 @@ const Manager = () => {
     for (let i = 0; i < 12; i++) {
       const randomChar = allChars[Math.floor(Math.random() * allChars.length)];
       generatedPassword += randomChar;
-    }
-    // Log the generated password
-    console.log(generatedPassword);
-    copyText(generatedPassword);
+    }   
     // Set the generated password into the form's password field
     setForm((prevForm) => ({ ...prevForm, password: generatedPassword }));
   };

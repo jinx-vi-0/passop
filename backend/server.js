@@ -1,6 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const { MongoClient } = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
@@ -45,19 +45,57 @@ app.get("/", async (req, res) => {
 // Save a password
 app.post("/", async (req, res) => {
   try {
-    const { password } = req.body; // Assuming you're sending only the password field
-    if (!password) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Password is required" });
+    const { site, username, password } = req.body;
+    if (!site || !username || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Site, username, and password are required",
+      });
     }
 
     const db = client.db(dbName);
     const collection = db.collection("passwords");
-    const result = await collection.insertOne({ password });
+    const result = await collection.insertOne({ site, username, password });
     res.status(201).json({ success: true, result });
   } catch (error) {
     console.error("Error saving password:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
+// Update a password by id
+app.put("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { site, username, password } = req.body;
+
+    if (!site || !username || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Site, username, and password are required",
+      });
+    }
+
+    const db = client.db(dbName);
+    const collection = db.collection("passwords");
+    const result = await collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { site, username, password } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Password not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+      result,
+    });
+  } catch (error) {
+    console.error("Error updating password:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
@@ -76,7 +114,7 @@ app.delete("/:id", async (req, res) => {
     const db = client.db(dbName);
     const collection = db.collection("passwords");
     const result = await collection.deleteOne({
-      _id: new MongoClient.ObjectId(id),
+      _id: new ObjectId(id),
     });
 
     if (result.deletedCount === 0) {
@@ -85,16 +123,51 @@ app.delete("/:id", async (req, res) => {
         .json({ success: false, message: "Password not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Password deleted successfully",
-        result,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Password deleted successfully",
+      result,
+    });
   } catch (error) {
     console.error("Error deleting password:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
+// Exporting the passwords
+app.get("/export", async (req, res) => {
+  try {
+    const db = client.db(dbName);
+    const passwords = await db.collection("passwords").find({}).toArray();
+
+    res.setHeader("content-Type", "application/json");
+    res.setHeader("content-disposition", "attachment; filename=passwords.json");
+    res.status(200).json(passwords);
+  } catch (error) {
+    console.error("Error exporting passwords:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error exporting the passwords" });
+  }
+});
+
+// Importing the passwords
+app.post("/import", async (req, res) => {
+  try {
+    const passwords = req.body;
+    const db = client.db(dbName);
+    const collection = db.collection("passwords");
+
+    await collection.insertMany(passwords);
+
+    res
+      .status(200)
+      .json({ success: true, message: "Passwords imported successfully" });
+  } catch (error) {
+    console.error("Error importing passwords:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error importing the passwords" });
   }
 });
 

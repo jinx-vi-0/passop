@@ -23,7 +23,7 @@ const Manager = () => {
     setPasswordArray(passwords);
   };
 
-  // function to add favicon before a website 
+  // function to add favicon before a website
   // domain format examples = google.com || dev.to || youtube.com
   const getFavicon = (domain) => {
     return `https://www.google.com/s2/favicons?domain=${domain}&sz=25`;
@@ -55,24 +55,23 @@ const Manager = () => {
         ? "icons/eye.png"
         : "icons/eyecross.png";
   };
-  
+
   const generatePassword = () => {
-    const lowerCase = 'abcdefghijklmnopqrstuvwxyz';
-    const upperCase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const numbers = '0123456789';
-    const symbols = '!@#$%^&*()_+[]{}|;:,.<>?';
-  
+    const lowerCase = "abcdefghijklmnopqrstuvwxyz";
+    const upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const numbers = "0123456789";
+    const symbols = "!@#$%^&*()_+[]{}|;:,.<>?";
+
     const allChars = lowerCase + upperCase + numbers + symbols;
-    let generatedPassword = '';
-  
+    let generatedPassword = "";
+
     for (let i = 0; i < 12; i++) {
       const randomChar = allChars[Math.floor(Math.random() * allChars.length)];
       generatedPassword += randomChar;
-    }   
+    }
     // Set the generated password into the form's password field
     setForm((prevForm) => ({ ...prevForm, password: generatedPassword }));
   };
-  
 
   const validatePassword = (password) => {
     const errors = Object.keys(passwordRules)
@@ -94,10 +93,10 @@ const Manager = () => {
     ) {
       if (form.id) {
         const updatedPasswords = passwordArray.map((item) =>
-          item.id === form.id ? { ...form } : item
+          item._id === form.id ? { ...form } : item
         );
         setPasswordArray(updatedPasswords);
-        await fetch("http://localhost:3000/", {
+        await fetch(`http://localhost:3000/${form.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(form),
@@ -277,24 +276,32 @@ const Manager = () => {
             </div>
           </div>
 
-          {/* Add a button to generate a password */}
-          <button
-            onClick={generatePassword}
-            className="bg-green-600 hover:bg-green-600 text-white rounded-full px-4 py-2"
-          >
-            Generate Password
-          </button>
+          {/* Buttons */}
+          <div className="flex flex-col">
+            <div className="flex justify-center gap-4 mt-4">
+              <button
+                onClick={savePassword}
+                className="flex justify-center items-center gap-2 bg-green-500 hover:bg-green-600 rounded-full px-8 py-2 w-fit border border-green-900"
+              >
+                <lord-icon
+                  src="https://cdn.lordicon.com/jgnvfzqg.json"
+                  trigger="hover"
+                ></lord-icon>
+                {form.id ? "Update" : "Save"}
+              </button>
 
-          <button
-            onClick={savePassword}
-            className="flex justify-center items-center gap-2 bg-green-500 hover:bg-green-600 rounded-full px-8 py-2 w-fit border border-green-900"
-          >
-            <lord-icon
-              src="https://cdn.lordicon.com/jgnvfzqg.json"
-              trigger="hover"
-            ></lord-icon>
-            {form.id ? "Update" : "Save" }
-          </button>
+              <button
+                onClick={generatePassword}
+                className="flex justify-center items-center gap-2 bg-green-500 hover:bg-green-600 rounded-full px-8 py-2 w-fit border border-green-900"
+              >
+                <lord-icon
+                  src="https://cdn.lordicon.com/jxnudnip.json"
+                  trigger="hover"
+                ></lord-icon>
+                Generate Password
+              </button>
+            </div>
+          </div>
         </div>
         <div className="passwords">
           <h2 className="font-bold text-2xl py-4">Your Passwords</h2>
@@ -315,7 +322,7 @@ const Manager = () => {
                     <tr key={index}>
                       <td className="py-2 border border-white text-center">
                         <div className="flex items-center justify-center">
-                        <img src={getFavicon(item.site)} className="mr-3"/>
+                          <img src={getFavicon(item.site)} className="mr-3" />
                           <a
                             href={item.site}
                             target="_blank"

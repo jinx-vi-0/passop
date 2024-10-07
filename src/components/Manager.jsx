@@ -57,7 +57,8 @@ const Manager = () => {
         : "icons/eyecross.png";
   };
 
-  const generatePassword = () => {
+  const generatePassword = (event) => {
+    event.preventDefault();
     const lowerCase = "abcdefghijklmnopqrstuvwxyz";
     const upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const numbers = "0123456789";

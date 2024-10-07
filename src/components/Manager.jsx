@@ -3,7 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import passwordRules from "./variables.json";
 import "react-toastify/dist/ReactToastify.css";
-import { FaEye, FaEyeSlash, FaSave } from "react-icons/fa";
+
 const Manager = () => {
   const ref = useRef();
   const passwordRef = useRef();
@@ -16,7 +16,6 @@ const Manager = () => {
   const [passwordArray, setPasswordArray] = useState([]);
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
-  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const getPasswords = async () => {
     let req = await fetch("http://localhost:3000/");
@@ -57,8 +56,7 @@ const Manager = () => {
         : "icons/eyecross.png";
   };
 
-  const generatePassword = (event) => {
-    event.preventDefault();
+  const generatePassword = () => {
     const lowerCase = "abcdefghijklmnopqrstuvwxyz";
     const upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const numbers = "0123456789";
@@ -169,170 +167,144 @@ const Manager = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-10">
-      {/* <ToastContainer />
+    <>
+      <ToastContainer />
       <div className="absolute inset-0 -z-10 h-full w-full bg-green-50 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]">
         <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-green-400 opacity-20 blur-[100px]"></div>
-      </div> */}
-      <div className="">
-       
-        <div className="text-center mb-10">
-          <h2 className="text-4xl font-bold text-gray-800">
-            <span className="text-green-500">Pass</span>OP - Your own Password
-            Manager
-          </h2>
-        </div>
-        {/*Form section */}
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-3xl mx-auto">
-          <form>
-            <div className="grid grid-cols-1 gap-2">
-              <label className="text-gray-700 font-semibold">Website URL</label>
-              <input
-                value={form.site}
-                onChange={handleChange}
-                placeholder="Enter website URL"
-                className="rounded-full border border-green-500 w-full p-4 py-1"
-                type="text"
-                name="site"
-                id="site"
-              />
-            </div>
+      </div>
+      <div className="p-3 md:mycontainer min-h-[88.2vh]">
+        <h1 className="text-4xl font-bold text-center">
+          <span className="text-green-800">&lt;</span>
+          <span>Pass</span>
+          <span className="text-green-800">OP/&gt;</span>
+        </h1>
+        <p className="text-green-900 text-lg text-center">
+          Your own Password Manager
+        </p>
 
-            <div className="grid grid-cols-1 gap-2">
-              <label className="text-gray-700 font-semibold">Username</label>
-              <input
-                value={form.username}
-                onChange={handleChange}
-                placeholder="Enter Username"
-                className="rounded-full border border-green-500 w-full p-4 py-1"
-                type="text"
-                name="username"
-                id="username"
-              />
-            </div>
-            <div className="flex flex-col w-full items-center space-x-2">
-              <div className="grid grid-cols-1  relative w-full">
-                <label className="text-gray-700 font-semibold">Password</label>
-
-                {/* Password Field and Generate Button Container */}
-                <div className="relative flex items-center w-full">
-                  <input
-                    ref={passwordRef}
-                    value={form.password}
-                    onChange={handleChange}
-                    onBlur={() => setIsTyping(false)}
-                    placeholder="Enter Password"
-                    className="rounded-full border border-green-500 w-full p-4 py-1"
-                    type={passwordVisible ? "text" : "password"}
-                    name="password"
-                    id="password"
+        <div className="flex flex-col p-4 text-black gap-8 items-center">
+          <input
+            value={form.site}
+            onChange={handleChange}
+            placeholder="Enter website URL"
+            className="rounded-full border border-green-500 w-full p-4 py-1"
+            type="text"
+            name="site"
+            id="site"
+          />
+          <div className="flex flex-col md:flex-row w-full justify-between gap-8">
+            <input
+              value={form.username}
+              onChange={handleChange}
+              placeholder="Enter Username"
+              className="rounded-full border border-green-500 w-full p-4 py-1"
+              type="text"
+              name="username"
+              id="username"
+            />
+            <div className="flex flex-col relative">
+              <div className="relative">
+                <input
+                  ref={passwordRef}
+                  value={form.password}
+                  onChange={handleChange}
+                  onBlur={() => setIsTyping(false)}
+                  placeholder="Enter Password"
+                  className="rounded-full border border-green-500 w-full p-4 py-1"
+                  type="password"
+                  name="password"
+                  id="password"
+                />
+                <span
+                  className="absolute right-[3px] top-[4px] cursor-pointer"
+                  onClick={showPassword}
+                >
+                  <img
+                    ref={ref}
+                    className="p-1"
+                    width={26}
+                    src="icons/eye.png"
+                    alt="eye"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setPasswordVisible(!passwordVisible)}
-                    className="absolute text-lg  md:top-2 right-32  md:right-44 text-gray-500"
-                  >
-                    {passwordVisible ? <FaEye /> : <FaEyeSlash />}
-                  </button>
-
-                  
-                  <button
-                    onClick={generatePassword}
-                    className="ml-4 bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 md:whitespace-nowrap text-sm "
-                  >
-                    Generate Password
-                  </button>
-                </div>
+                </span>
               </div>
-
-             
               {isTyping && (
-                <div className="mt-2 p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-md w-full">
-                  <ul className="space-y-1">
-                    <li className="flex items-center">
-                      <span
-                        className={`${
-                          form.password.length >= 8
-                            ? "text-green-600"
-                            : "text-red-500"
-                        } font-semibold`}
+                <div className="flex flex-col items-start w-full absolute top-10">
+                  <div className="mt-2 p-2 border rounded bg-gray-100">
+                    <ul>
+                      <li
+                        style={{
+                          color: form.password.length >= 8 ? "green" : "red",
+                        }}
                       >
-                        {form.password.length >= 8 ? "✔️" : "❌"} 8-20
-                        Characters
-                      </span>
-                    </li>
-                    <li className="flex items-center">
-                      <span
-                        className={`${
-                          /[A-Z]/.test(form.password)
-                            ? "text-green-600"
-                            : "text-red-500"
-                        } font-semibold`}
+                        8-20 Characters
+                      </li>
+                      <li
+                        style={{
+                          color: /[A-Z]/.test(form.password) ? "green" : "red",
+                        }}
                       >
-                        {/[A-Z]/.test(form.password) ? "✔️" : "❌"} At least one
-                        capital letter
-                      </span>
-                    </li>
-                    <li className="flex items-center">
-                      <span
-                        className={`${
-                          /\d/.test(form.password)
-                            ? "text-green-600"
-                            : "text-red-500"
-                        } font-semibold`}
+                        At least one capital letter
+                      </li>
+                      <li
+                        style={{
+                          color: /\d/.test(form.password) ? "green" : "red",
+                        }}
                       >
-                        {/\d/.test(form.password) ? "✔️" : "❌"} At least one
-                        number
-                      </span>
-                    </li>
-                    <li className="flex items-center">
-                      <span
-                        className={`${
-                          !/\s/.test(form.password)
-                            ? "text-green-600"
-                            : "text-red-500"
-                        } font-semibold`}
+                        At least one number
+                      </li>
+                      <li
+                        style={{
+                          color: !/\s/.test(form.password) ? "green" : "red",
+                        }}
                       >
-                        {!/\s/.test(form.password) ? "✔️" : "❌"} No spaces
-                      </span>
-                    </li>
-                    <li className="flex items-center">
-                      <span
-                        className={`${
-                          /[!@#$%^&*(),.?\\":{}|<>]/.test(form.password)
-                            ? "text-green-600"
-                            : "text-red-500"
-                        } font-semibold`}
+                        No spaces
+                      </li>
+                      <li
+                        style={{
+                          color: /[!@#$%^&*(),.?\\":{}|<>]/.test(form.password)
+                            ? "green"
+                            : "red",
+                        }}
                       >
-                        {/[!@#$%^&*(),.?\\":{}|<>]/.test(form.password)
-                          ? "✔️"
-                          : "❌"}{" "}
-                        At least one special character
-                      </span>
-                    </li>
-                  </ul>
+                        Password must contain at least one special character
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               )}
             </div>
+          </div>
 
-            
-
-            <div className="flex justify-center mt-4">
+          {/* Buttons */}
+          <div className="flex flex-col">
+            <div className="flex justify-center gap-4 mt-4">
               <button
                 onClick={savePassword}
-                type="submit"
-                className="bg-green-500 text-white font-bold py-3 px-6 rounded-full shadow-md hover:bg-green-600 transition-transform transform hover:scale-105 flex items-center"
+                className="flex justify-center items-center gap-2 bg-green-500 hover:bg-green-600 rounded-full px-8 py-2 w-fit border border-green-900"
               >
-                <FaSave className="mr-2" /> Save
+                <lord-icon
+                  src="https://cdn.lordicon.com/jgnvfzqg.json"
+                  trigger="hover"
+                ></lord-icon>
+                {form.id ? "Update" : "Save"}
+              </button>
+
+              <button
+                onClick={generatePassword}
+                className="flex justify-center items-center gap-2 bg-green-500 hover:bg-green-600 rounded-full px-8 py-2 w-fit border border-green-900"
+              >
+                <lord-icon
+                  src="https://cdn.lordicon.com/jxnudnip.json"
+                  trigger="hover"
+                ></lord-icon>
+                Generate Password
               </button>
             </div>
-          </form>
+          </div>
         </div>
-        {/*Password List */}
-        <div className="passwords mt-10 max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg ">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">
-            Your Passwords
-          </h3>
+        <div className="passwords">
+          <h2 className="font-bold text-2xl py-4">Your Passwords</h2>
           {passwordArray.length === 0 && <div>No passwords to show</div>}
           {passwordArray.length !== 0 && (
             <div className="overflow-x-auto">
@@ -350,6 +322,7 @@ const Manager = () => {
                     <tr key={index}>
                       <td className="py-2 border border-white text-center">
                         <div className="flex items-center justify-center">
+                          <img src={getFavicon(item.site)} className="mr-3" />
                           <a
                             href={item.site}
                             target="_blank"
@@ -454,7 +427,7 @@ const Manager = () => {
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

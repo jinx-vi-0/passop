@@ -134,8 +134,8 @@ const Manager = () => {
       "Do you really want to delete this password?"
     );
     if (confirmDelete) {
-      setPasswordArray(passwordArray.filter((item) => item.id !== id));
-      await fetch("http://localhost:3000/", {
+      setPasswordArray(passwordArray.filter((item) => item._id !== id));
+      await fetch(`http://localhost:3000/${id}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
@@ -409,7 +409,7 @@ const Manager = () => {
                         <span
                           className="cursor-pointer mx-1"
                           onClick={() => {
-                            deletePassword(item.id);
+                            deletePassword(item._id);
                           }}
                         >
                           <lord-icon

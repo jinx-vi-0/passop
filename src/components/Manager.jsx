@@ -174,8 +174,8 @@ const Manager = () => {
       <div className="absolute inset-0 -z-10 h-full w-full bg-green-50 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]">
         <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-green-400 opacity-20 blur-[100px]"></div>
       </div> */}
+      <ToastContainer />
       <div className="">
-       
         <div className="text-center mb-10">
           <h2 className="text-4xl font-bold text-gray-800">
             <span className="text-green-500">Pass</span>OP - Your own Password
@@ -235,7 +235,6 @@ const Manager = () => {
                     {passwordVisible ? <FaEye /> : <FaEyeSlash />}
                   </button>
 
-                  
                   <button
                     onClick={generatePassword}
                     className="ml-4 bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 md:whitespace-nowrap text-sm "
@@ -245,7 +244,6 @@ const Manager = () => {
                 </div>
               </div>
 
-             
               {isTyping && (
                 <div className="mt-2 p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-md w-full">
                   <ul className="space-y-1">
@@ -315,12 +313,10 @@ const Manager = () => {
               )}
             </div>
 
-            
-
             <div className="flex justify-center mt-4">
               <button
                 onClick={savePassword}
-                type="submit"
+                type="button"
                 className="bg-green-500 text-white font-bold py-3 px-6 rounded-full shadow-md hover:bg-green-600 transition-transform transform hover:scale-105 flex items-center"
               >
                 <FaSave className="mr-2" /> Save

@@ -3,6 +3,33 @@ const dotenv = require("dotenv");
 const { MongoClient, ObjectId } = require("mongodb");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const crypto = require("crypto");
+
+// Encryption and Decryption keys
+const ENCRYPTION_KEY = crypto.randomBytes(32); // Must be 256 bits (32 bytes)
+const IV_LENGTH = 16; // For AES, this is always 16
+
+
+// Encrypt a password
+const encrypt = (text) => {
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv("aes-256-cbc", Buffer.from(ENCRYPTION_KEY), iv);
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return iv.toString("hex") + ":" + encrypted; // Store IV with the encrypted password
+};
+
+// Decrypt function
+function decrypt(text) {
+  let ivBuffer = Buffer.from(text.iv, "hex");
+  let encryptedText = text.encryptedData;
+
+  let decipher = crypto.createDecipheriv("aes-256-cdc", Buffer.from(ENCRYPTION_KEY), ivBuffer);
+  let decrypted = decipher.update(encryptedText, "hex", "utf-8");
+  decrypted += decipher.final("utf-8");
+
+  return decrypted;
+}
 
 dotenv.config();
 
@@ -55,7 +82,9 @@ app.post("/", async (req, res) => {
 
     const db = client.db(dbName);
     const collection = db.collection("passwords");
-    const result = await collection.insertOne({ site, username, password });
+    // Encrypt the password before saving
+    const encryptedPassword = encrypt(password);
+    const result = await collection.insertOne({ site, username, password: encryptedPassword });
     res.status(201).json({ success: true, result });
   } catch (error) {
     console.error("Error saving password:", error);
@@ -78,9 +107,13 @@ app.put("/:id", async (req, res) => {
 
     const db = client.db(dbName);
     const collection = db.collection("passwords");
+
+    // Encrypt the new password before updating
+    const encryptedPassword = encrypt(password);
+
     const result = await collection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { site, username, password } }
+      { $set: { site, username, password: encryptedPassword } } // Use the encrypted password here
     );
 
     if (result.matchedCount === 0) {
@@ -99,6 +132,7 @@ app.put("/:id", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
+
 
 // Delete a password by id
 app.delete("/:id", async (req, res) => {

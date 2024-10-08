@@ -1,8 +1,14 @@
 import React from "react";
+import { useTheme } from "./ThemeContext";
 
 const Footer = () => {
+  const { isDarkMode, toggleTheme } = useTheme();
   return (
-    <div className="bg-slate-800 text-white flex flex-col justify-center items-center  w-full">
+    <div
+      className={`text-white flex flex-col justify-center items-center  w-full theme-transition ${
+        isDarkMode ? "bg-stone-950" : "bg-slate-800"
+      }`}
+    >
       <div className="logo font-bold text-white text-2xl">
         <span className="text-green-600"> &lt;</span>
         <span>Pass</span>

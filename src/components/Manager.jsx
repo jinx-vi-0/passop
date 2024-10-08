@@ -3,8 +3,10 @@ import { ToastContainer, toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import passwordRules from "./variables.json";
 import "react-toastify/dist/ReactToastify.css";
+import { useTheme } from "./ThemeContext";
 
 const Manager = () => {
+  const { isDarkMode, toggleTheme } = useTheme();
   const ref = useRef();
   const passwordRef = useRef();
   const [form, setForm] = useState({
@@ -220,16 +222,42 @@ const Manager = () => {
   return (
     <>
       <ToastContainer />
-      <div className="absolute inset-0 -z-10 h-full w-full bg-green-50 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]">
+      <div
+        className={`absolute inset-0 -z-10 h-full w-full transition-colors duration-300 ${
+          isDarkMode ? "bg-green-900" : "bg-green-50"
+        } bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]`}
+      >
         <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-green-400 opacity-20 blur-[100px]"></div>
       </div>
       <div className="p-3 md:mycontainer min-h-[88.2vh]">
-        <h1 className="text-4xl font-bold text-center">
-          <span className="text-green-800">&lt;</span>
-          <span>Pass</span>
-          <span className="text-green-800">OP/&gt;</span>
+        <h1
+          className={`text-4xl font-bold text-center theme-transition${
+            isDarkMode ? "text-white" : "text-green-800"
+          }`}
+        >
+          <span className={isDarkMode ? "text-green-600" : "text-green-800"}>
+            &lt;
+          </span>
+          <span
+            className={`theme-transition ${
+              isDarkMode ? "text-white" : "text-black"
+            }`}
+          >
+            Pass
+          </span>
+          <span
+            className={`theme-transition ${
+              isDarkMode ? "text-green-600" : "text-green-800"
+            }`}
+          >
+            OP/&gt;
+          </span>
         </h1>
-        <p className="text-green-900 text-lg text-center">
+        <p
+          className={`text-lg text-center theme-transition ${
+            isDarkMode ? "text-white" : "text-black"
+          }`}
+        >
           Your own Password Manager
         </p>
 
@@ -364,12 +392,34 @@ const Manager = () => {
           </div>
         </div>
         <div className="passwords">
-          <h2 className="font-bold text-2xl py-4">Your Passwords</h2>
-          {passwordArray.length === 0 && <div>No passwords to show</div>}
+          <h2
+            className={`font-bold text-2xl py-4 theme-transition ${
+              isDarkMode ? "text-white" : "text-green-900"
+            }`}
+          >
+            Your Passwords
+          </h2>
+          {passwordArray.length === 0 && (
+            <div
+              className={`theme-transition ${
+                isDarkMode ? "text-gray-300" : "text-black"
+              }`}
+            >
+              No passwords to show
+            </div>
+          )}
           {passwordArray.length !== 0 && (
             <div className="overflow-x-auto">
-              <table className="table-auto w-full rounded-md overflow-hidden mb-10">
-                <thead className="bg-green-800 text-white">
+              <table
+                className={`table-auto w-full rounded-md overflow-hidden mb-10 theme-transition${
+                  isDarkMode ? "bg-green-900 " : "bg-white text-black"
+                }`}
+              >
+                <thead
+                  className={`${
+                    isDarkMode ? "bg-green-800 text-white" : "bg-green-600 "
+                  }`}
+                >
                   <tr>
                     <th className="py-2">Site</th>
                     <th className="py-2">Username</th>
@@ -486,6 +536,18 @@ const Manager = () => {
             </div>
           )}
         </div>
+        {/* Dark mode toggle button */}
+        <button
+          onClick={toggleTheme}
+          className="fixed bottom-8 right-4 flex justify-center items-center gap-2 font-semibold bg-green-500 hover:bg-green-600 rounded-full px-4 py-2 border border-green-900 transition duration-300 ease-in-out"
+        >
+          <script src="https://cdn.lordicon.com/lordicon.js"></script>
+          <lord-icon
+            src="https://cdn.lordicon.com/dupxuoaa.json"
+            trigger="loop"
+            state="loop-jab"
+          ></lord-icon>
+        </button>
       </div>
     </>
   );

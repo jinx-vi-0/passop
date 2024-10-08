@@ -1,7 +1,8 @@
 import React from "react";
-
+import { useTheme } from "./ThemeContext";
 const Navbar = () => {
-  // function to download passwords
+  const { isDarkMode, toggleTheme } = useTheme();
+  // Function to download passwords
   const downloadPasswords = async () => {
     try {
       const response = await fetch("http://localhost:3000/export");
@@ -21,7 +22,7 @@ const Navbar = () => {
     }
   };
 
-  // function to import passwords
+  // Function to import passwords
   const importPasswords = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -62,10 +63,14 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-slate-800 text-white">
+    <nav
+      className={` text-white  theme-transition ${
+        isDarkMode ? "bg-stone-950" : "bg-slate-800"
+      }`}
+    >
       <div className="mycontainer flex justify-between items-center px-4 py-5 h-14">
         {/* Left side: Logo */}
-        <div className="logo font-bold text-white text-2xl">
+        <div className="logo font-bold text-2xl">
           <span className="text-green-600"> &lt;</span>
           <span>Pass</span>
           <span className="text-green-600">OP/&gt;</span>
@@ -96,7 +101,7 @@ const Navbar = () => {
             onClick={() =>
               document.getElementById("upload-passwords-input").click()
             }
-            className="flex justify-center items-center gap-2  font-semibold bg-green-500 hover:bg-green-600 rounded-full px-4 py-1 border border-green-900"
+            className="flex justify-center items-center gap-2 font-semibold bg-green-500 hover:bg-green-600 rounded-full px-4 py-1 border border-green-900"
           >
             <lord-icon
               src="https://cdn.lordicon.com/xcrjfuzb.json"

@@ -4,27 +4,25 @@ const { MongoClient, ObjectId } = require("mongodb");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const crypto = require("crypto");
+const errorMsg = require("./errorMsg"); // Importing the error messages
 
 // Encryption and Decryption keys
-const ENCRYPTION_KEY = crypto.randomBytes(32); // Must be 256 bits (32 bytes)
-const IV_LENGTH = 16; // For AES, this is always 16
+const ENCRYPTION_KEY = crypto.randomBytes(32);
+const IV_LENGTH = 16;
 
-
-// Encrypt a password
 const encrypt = (text) => {
   const iv = crypto.randomBytes(IV_LENGTH);
   const cipher = crypto.createCipheriv("aes-256-cbc", Buffer.from(ENCRYPTION_KEY), iv);
   let encrypted = cipher.update(text, "utf8", "hex");
   encrypted += cipher.final("hex");
-  return iv.toString("hex") + ":" + encrypted; // Store IV with the encrypted password
+  return iv.toString("hex") + ":" + encrypted;
 };
 
-// Decrypt function
 function decrypt(text) {
   let ivBuffer = Buffer.from(text.iv, "hex");
   let encryptedText = text.encryptedData;
 
-  let decipher = crypto.createDecipheriv("aes-256-cdc", Buffer.from(ENCRYPTION_KEY), ivBuffer);
+  let decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(ENCRYPTION_KEY), ivBuffer);
   let decrypted = decipher.update(encryptedText, "hex", "utf-8");
   decrypted += decipher.final("utf-8");
 
@@ -33,7 +31,6 @@ function decrypt(text) {
 
 dotenv.config();
 
-// Connecting to the MongoDB Client
 const url = process.env.MONGO_URI;
 const client = new MongoClient(url);
 
@@ -43,20 +40,17 @@ client
     console.log("Database connected");
   })
   .catch((error) => {
-    console.error("Database connection failed:", error);
-    process.exit(1); // Exit the process if the database connection fails
+    console.error(errorMsg.databaseConnectionFailed, error); // Using errorMsg for error messages
+    process.exit(1);
   });
 
-// App & Database
 const dbName = process.env.DB_NAME;
 const app = express();
-const port = process.env.PORT || 3000; // Use port from environment variables or default to 3000
+const port = process.env.PORT || 3000;
 
-// Middleware
 app.use(bodyParser.json());
 app.use(cors());
 
-// Get all the passwords
 app.get("/", async (req, res) => {
   try {
     const db = client.db(dbName);
@@ -64,148 +58,81 @@ app.get("/", async (req, res) => {
     const passwords = await collection.find({}).toArray();
     res.status(200).json(passwords);
   } catch (error) {
-    console.error("Error fetching passwords:", error);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+    console.error(errorMsg.internalServerError, error);
+    res.status(500).json({ success: false, message: errorMsg.internalServerError });
   }
 });
 
-// Save a password
 app.post("/", async (req, res) => {
   try {
     const { site, username, password } = req.body;
     if (!site || !username || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Site, username, and password are required",
-      });
+      return res.status(400).json({ success: false, message: errorMsg.requiredFields });
     }
 
     const db = client.db(dbName);
     const collection = db.collection("passwords");
-    // Encrypt the password before saving
     const encryptedPassword = encrypt(password);
     const result = await collection.insertOne({ site, username, password: encryptedPassword });
     res.status(201).json({ success: true, result });
   } catch (error) {
-    console.error("Error saving password:", error);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+    console.error(errorMsg.internalServerError, error);
+    res.status(500).json({ success: false, message: errorMsg.internalServerError });
   }
 });
 
-// Update a password by id
 app.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { site, username, password } = req.body;
 
     if (!site || !username || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Site, username, and password are required",
-      });
+      return res.status(400).json({ success: false, message: errorMsg.requiredFields });
     }
 
     const db = client.db(dbName);
     const collection = db.collection("passwords");
-
-    // Encrypt the new password before updating
     const encryptedPassword = encrypt(password);
 
     const result = await collection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { site, username, password: encryptedPassword } } // Use the encrypted password here
+      { $set: { site, username, password: encryptedPassword } }
     );
 
     if (result.matchedCount === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Password not found" });
+      return res.status(404).json({ success: false, message: errorMsg.passwordNotFound });
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Password updated successfully",
-      result,
-    });
+    res.status(200).json({ success: true, message: "Password updated successfully", result });
   } catch (error) {
-    console.error("Error updating password:", error);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+    console.error(errorMsg.internalServerError, error);
+    res.status(500).json({ success: false, message: errorMsg.internalServerError });
   }
 });
 
-
-// Delete a password by id
 app.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
     if (!id) {
-      return res
-        .status(400)
-        .json({ success: false, message: "ID is required" });
+      return res.status(400).json({ success: false, message: errorMsg.idRequired });
     }
 
     const db = client.db(dbName);
     const collection = db.collection("passwords");
-    const result = await collection.deleteOne({
-      _id: new ObjectId(id),
-    });
+    const result = await collection.deleteOne({ _id: new ObjectId(id) });
 
     if (result.deletedCount === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Password not found" });
+      return res.status(404).json({ success: false, message: errorMsg.passwordNotFound });
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Password deleted successfully",
-      result,
-    });
+    res.status(200).json({ success: true, message: "Password deleted successfully", result });
   } catch (error) {
-    console.error("Error deleting password:", error);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+    console.error(errorMsg.internalServerError, error);
+    res.status(500).json({ success: false, message: errorMsg.internalServerError });
   }
 });
 
-// Exporting the passwords
-app.get("/export", async (req, res) => {
-  try {
-    const db = client.db(dbName);
-    const passwords = await db.collection("passwords").find({}).toArray();
-
-    res.setHeader("content-Type", "application/json");
-    res.setHeader("content-disposition", "attachment; filename=passwords.json");
-    res.status(200).json(passwords);
-  } catch (error) {
-    console.error("Error exporting passwords:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error exporting the passwords" });
-  }
-});
-
-// Importing the passwords
-app.post("/import", async (req, res) => {
-  try {
-    const passwords = req.body;
-    const db = client.db(dbName);
-    const collection = db.collection("passwords");
-
-    await collection.insertMany(passwords);
-
-    res
-      .status(200)
-      .json({ success: true, message: "Passwords imported successfully" });
-  } catch (error) {
-    console.error("Error importing passwords:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error importing the passwords" });
-  }
-});
-
-// Server listen
 app.listen(port, () => {
   console.log(`PassOP server listening on http://localhost:${port}`);
 });

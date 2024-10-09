@@ -17,7 +17,10 @@ const Manager = () => {
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [urlErrors, setUrlErrors] = useState([]);
-  const [formErrors, setFormErrors] = useState([]);
+  const [isSiteFocused, setIsSiteFocused] = useState(false); // To track input focus
+
+  const handleSiteFocus = () => setIsSiteFocused(true);
+  const handleSiteBlur = () => setIsSiteFocused(false);
 
   const getPasswords = async () => {
     let req = await fetch("http://localhost:3000/");
@@ -234,24 +237,29 @@ const Manager = () => {
         </p>
 
         <div className="flex flex-col p-4 text-black gap-8 items-center">
-          <input
-            value={form.site}
-            onChange={handleChange}
-            placeholder="Enter website URL"
-            className="rounded-full border border-green-500 w-full p-4 py-1"
-            type="text"
-            name="site"
-            id="site"
-          />
-          {urlErrors.length > 0 && (
-            <div className="mt-2 p-2 self-start border rounded bg-red-100 text-red-700">
-              <ul>
-                {urlErrors.map((error, index) => (
-                  <li key={index}>{error}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <div className="relative w-full">
+            <input
+              value={form.site}
+              onChange={handleChange}
+              onFocus={handleSiteFocus}
+              onBlur={handleSiteBlur}
+              placeholder="Enter website URL"
+              className="rounded-full border border-green-500 w-full p-4 py-1"
+              type="text"
+              name="site"
+              id="site"
+            />
+            {isSiteFocused && urlErrors.length > 0 && (
+              <div className="absolute  -top-20 mt-2 p-2 left-0 border rounded-lg bg-red-100 text-red-700 opacity-75 ">
+                <ul>
+                  {urlErrors.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
           <div className="flex flex-col md:flex-row w-full justify-between gap-8">
             <input
               value={form.username}

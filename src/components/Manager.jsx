@@ -69,15 +69,19 @@ const Manager = () => {
 
     const allChars = lowerCase + upperCase + numbers + symbols;
     let generatedPassword = "";
+    generatedPassword += lowerCase[Math.floor(Math.random() * lowerCase.length)];  // At least one lowercase
+    generatedPassword += upperCase[Math.floor(Math.random() * upperCase.length)];  // At least one uppercase
+    generatedPassword += numbers[Math.floor(Math.random() * numbers.length)];      // At least one number
+    generatedPassword += symbols[Math.floor(Math.random() * symbols.length)]; 
 
-    for (let i = 0; i < 12; i++) {
+    while(generatedPassword.length < 15 ){
       const randomChar = allChars[Math.floor(Math.random() * allChars.length)];
       generatedPassword += randomChar;
     }
     // Set the generated password into the form's password field
     setForm((prevForm) => ({ ...prevForm, password: generatedPassword }));
   };
-
+  
   const validatePassword = (password) => {
     const errors = Object.keys(passwordRules)
       .map((rule) => {

@@ -83,8 +83,8 @@ app.post("/", async (req, res) => {
     const db = client.db(dbName);
     const collection = db.collection("passwords");
     // Encrypt the password before saving
-    const encryptedPassword = encrypt(password);
-    const result = await collection.insertOne({ site, username, password: encryptedPassword });
+    // const encryptedPassword = encrypt(password);
+    const result = await collection.insertOne({ site, username, password});
     res.status(201).json({ success: true, result });
   } catch (error) {
     console.error("Error saving password:", error);
@@ -109,11 +109,11 @@ app.put("/:id", async (req, res) => {
     const collection = db.collection("passwords");
 
     // Encrypt the new password before updating
-    const encryptedPassword = encrypt(password);
+    // const encryptedPassword = encrypt(password);
 
     const result = await collection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { site, username, password: encryptedPassword } } // Use the encrypted password here
+      { $set: { site, username, password } } // Use the encrypted password here
     );
 
     if (result.matchedCount === 0) {

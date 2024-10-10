@@ -8,7 +8,7 @@ const Manager = () => {
   const ref = useRef();
   const passwordRef = useRef();
   const [form, setForm] = useState({
-    id: "",
+    _id: "",
     site: "",
     username: "",
     password: "",
@@ -94,12 +94,14 @@ const Manager = () => {
     return errors.length === 0;
   };
   const savePassword = async () => {
+
     const errors = [];
 
     // Validate Site URL
     if (form.site.length <= 3 || !validateURL(form.site)) {
       errors.push(
         "Error: Invalid site name. Ensure it meets the required format."
+
       );
     }
 
@@ -132,39 +134,40 @@ const Manager = () => {
     }
 
     // Proceed to save the password if all validations pass
-    if (form.id) {
-      const updatedPasswords = passwordArray.map((item) =>
-        item._id === form.id ? { ...form } : item
-      );
-      setPasswordArray(updatedPasswords);
-      await fetch(`http://localhost:3000/${form.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-    } else {
-      const newPassword = { ...form, id: uuidv4() };
-      setPasswordArray([...passwordArray, newPassword]);
-      await fetch("http://localhost:3000/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPassword),
-      });
-    }
+      if (form._id) {
+        const updatedPasswords = passwordArray.map((item) =>
+          item._id === form._id ? { ...form } : item
+        );
+        setPasswordArray(updatedPasswords);
+        await fetch(`http://localhost:3000/${form._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+        getPasswords();
+      } else {
+        const newPassword = { ...form };
+        setPasswordArray([...passwordArray, newPassword]);
+        await fetch("http://localhost:3000/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newPassword),
+        });
+        getPasswords();
+      }
 
-    // Clear form and show success toast
-    setForm({ id: "", site: "", username: "", password: "" });
-    toast("Password saved!", {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-    });
-  };
+      setForm({ _id: "", site: "", username: "", password: "" });
+      toast("Password saved!", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    } 
 
   const deletePassword = async (id) => {
     const confirmDelete = confirm(
@@ -191,7 +194,7 @@ const Manager = () => {
   };
 
   const editPassword = (id) => {
-    const passwordToEdit = passwordArray.find((item) => item.id === id);
+    const passwordToEdit = passwordArray.find((item) => item._id === id);
     setForm({ ...passwordToEdit });
   };
 
@@ -359,7 +362,7 @@ const Manager = () => {
                   src="https://cdn.lordicon.com/jgnvfzqg.json"
                   trigger="hover"
                 ></lord-icon>
-                {form.id ? "Update" : "Save"}
+                {form._id ? "Update" : "Save"}
               </button>
 
               <button
@@ -469,7 +472,7 @@ const Manager = () => {
                         <span
                           className="cursor-pointer mx-1"
                           onClick={() => {
-                            editPassword(item.id);
+                            editPassword(item._id);
                           }}
                         >
                           <lord-icon

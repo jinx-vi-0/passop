@@ -4,9 +4,10 @@ const { MongoClient, ObjectId } = require("mongodb");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const crypto = require("crypto");
+dotenv.config();
 
 // Encryption and Decryption keys
-const ENCRYPTION_KEY = crypto.randomBytes(32); // Must be 256 bits (32 bytes)
+const ENCRYPTION_KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'utf-8'); 
 const IV_LENGTH = 16; // For AES, this is always 16
 
 
@@ -24,14 +25,14 @@ function decrypt(text) {
   let ivBuffer = Buffer.from(text.iv, "hex");
   let encryptedText = text.encryptedData;
 
-  let decipher = crypto.createDecipheriv("aes-256-cdc", Buffer.from(ENCRYPTION_KEY), ivBuffer);
+  let decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(ENCRYPTION_KEY), ivBuffer);
   let decrypted = decipher.update(encryptedText, "hex", "utf-8");
   decrypted += decipher.final("utf-8");
 
   return decrypted;
 }
 
-dotenv.config();
+
 
 // Connecting to the MongoDB Client
 const url = process.env.MONGO_URI;
@@ -62,7 +63,11 @@ app.get("/", async (req, res) => {
     const db = client.db(dbName);
     const collection = db.collection("passwords");
     const passwords = await collection.find({}).toArray();
-    res.status(200).json(passwords);
+    const decryptedPassword= passwords.map((item)=>{
+      const [iv, encryptedData] = item.password.split(':');
+      return {...item,password:decrypt({iv,encryptedData})};
+    });
+    res.status(200).json(decryptedPassword);
   } catch (error) {
     console.error("Error fetching passwords:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -83,8 +88,8 @@ app.post("/", async (req, res) => {
     const db = client.db(dbName);
     const collection = db.collection("passwords");
     // Encrypt the password before saving
-    // const encryptedPassword = encrypt(password);
-    const result = await collection.insertOne({ site, username, password});
+    const encryptedPassword = encrypt(password);
+    const result = await collection.insertOne({ site, username, password:encryptedPassword});
     res.status(201).json({ success: true, result });
   } catch (error) {
     console.error("Error saving password:", error);
@@ -109,11 +114,11 @@ app.put("/:id", async (req, res) => {
     const collection = db.collection("passwords");
 
     // Encrypt the new password before updating
-    // const encryptedPassword = encrypt(password);
+    const encryptedPassword = encrypt(password);
 
     const result = await collection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { site, username, password } } // Use the encrypted password here
+      { $set: { site, username, password:encryptedPassword } } // Use the encrypted password here
     );
 
     if (result.matchedCount === 0) {

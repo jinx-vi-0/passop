@@ -7,7 +7,7 @@ const crypto = require("crypto");
 dotenv.config();
 
 // Encryption and Decryption keys
-const ENCRYPTION_KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'utf-8'); 
+const ENCRYPTION_KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'utf-8');
 const IV_LENGTH = 16; // For AES, this is always 16
 
 // Encrypt a password

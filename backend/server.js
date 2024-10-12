@@ -7,13 +7,8 @@ const crypto = require("crypto");
 dotenv.config();
 
 // Encryption and Decryption keys
-<<<<<<< HEAD
 const ENCRYPTION_KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'utf-8');
-=======
-const ENCRYPTION_KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'utf-8');
->>>>>>> main
 const IV_LENGTH = 16; // For AES, this is always 16
-
 
 // Encrypt a password
 const encrypt = (text) => {
@@ -36,8 +31,6 @@ function decrypt(text) {
   return decrypted;
 }
 
-
-
 // Connecting to the MongoDB Client
 const url = process.env.MONGO_URI;
 const client = new MongoClient(url);
@@ -59,7 +52,7 @@ const port = process.env.PORT || 3000; // Use port from environment variables or
 
 // Middleware
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({ origin: 'chrome-extension://your-extension-id' })); // Replace with your actual extension ID
 
 // Get all the passwords
 app.get("/", async (req, res) => {
@@ -67,14 +60,34 @@ app.get("/", async (req, res) => {
     const db = client.db(dbName);
     const collection = db.collection("passwords");
     const passwords = await collection.find({}).toArray();
-    // const decryptedPassword= passwords.map((item)=>{
-    //   const [iv, encryptedData] = item.password.split(':');
-    //   return {...item,password:decrypt({iv,encryptedData})};
-    // });
-    res.status(200).json(passwords);
-
+    const decryptedPassword = passwords.map((item) => {
+      const [iv, encryptedData] = item.password.split(':');
+      return { ...item, password: decrypt({ iv, encryptedData }) };
+    });
+    res.status(200).json(decryptedPassword);
   } catch (error) {
     console.error("Error fetching passwords:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
+// Get a password by id
+app.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const db = client.db(dbName);
+    const collection = db.collection("passwords");
+    const item = await collection.findOne({ _id: new ObjectId(id) });
+
+    if (!item) {
+      return res.status(404).json({ success: false, message: "Password not found" });
+    }
+
+    const [iv, encryptedData] = item.password.split(':');
+    const decryptedPassword = decrypt({ iv, encryptedData });
+    res.status(200).json({ ...item, password: decryptedPassword });
+  } catch (error) {
+    console.error("Error fetching password:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
@@ -142,7 +155,6 @@ app.put("/:id", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
-
 
 // Delete a password by id
 app.delete("/:id", async (req, res) => {

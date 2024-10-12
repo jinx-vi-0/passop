@@ -1,6 +1,13 @@
 import React from "react";
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/authContext/index';
+import { doSignOut } from '../firebase/auth'
+import UserAccount from "./UserAccount";
 
 const Navbar = () => {
+  const { currentUser } = useAuth();
+  const { userLoggedIn } = useAuth();
+  const navigate = useNavigate();
   // function to download passwords
   const downloadPasswords = async () => {
     try {
@@ -105,6 +112,36 @@ const Navbar = () => {
             Import
           </button>
 
+          {userLoggedIn ?
+            <button
+              onClick={() => { doSignOut().then(() => { navigate('/login') }) }} // Navigate to the login page
+              className="flex justify-center items-center gap-2 font-semibold bg-green-500 hover:bg-green-600 rounded-full px-4 py-1 border border-green-900"
+            >
+              <lord-icon
+                src="https://cdn.lordicon.com/xcrjfuzb.json"
+                trigger="hover"
+              ></lord-icon>
+              Sign out
+            </button>
+            :
+            <button
+              onClick={() => navigate('/sign-in')} // Navigate to the login page
+              className="flex justify-center items-center gap-2 font-semibold bg-green-500 hover:bg-green-600 rounded-full px-4 py-1 border border-green-900"
+            >
+              <lord-icon
+                src="https://cdn.lordicon.com/xcrjfuzb.json"
+                trigger="hover"
+              ></lord-icon>
+              Sign in
+            </button>
+
+
+          }
+
+
+
+          {userLoggedIn ? <UserAccount email={currentUser.email} username={currentUser.displayName} />
+            : ''}
           <a
             href="https://github.com/jinx-vi-0"
             target="_blank"

@@ -4,9 +4,10 @@ const { MongoClient, ObjectId } = require("mongodb");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const crypto = require("crypto");
+dotenv.config();
 
 // Encryption and Decryption keys
-const ENCRYPTION_KEY = crypto.randomBytes(32); // Must be 256 bits (32 bytes)
+const ENCRYPTION_KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'utf-8');
 const IV_LENGTH = 16; // For AES, this is always 16
 
 
@@ -24,14 +25,14 @@ function decrypt(text) {
   let ivBuffer = Buffer.from(text.iv, "hex");
   let encryptedText = text.encryptedData;
 
-  let decipher = crypto.createDecipheriv("aes-256-cdc", Buffer.from(ENCRYPTION_KEY), ivBuffer);
+  let decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(ENCRYPTION_KEY), ivBuffer);
   let decrypted = decipher.update(encryptedText, "hex", "utf-8");
   decrypted += decipher.final("utf-8");
 
   return decrypted;
 }
 
-dotenv.config();
+
 
 // Connecting to the MongoDB Client
 const url = process.env.MONGO_URI;
@@ -62,6 +63,10 @@ app.get("/", async (req, res) => {
     const db = client.db(dbName);
     const collection = db.collection("passwords");
     const passwords = await collection.find({}).toArray();
+    // const decryptedPassword= passwords.map((item)=>{
+    //   const [iv, encryptedData] = item.password.split(':');
+    //   return {...item,password:decrypt({iv,encryptedData})};
+    // });
     res.status(200).json(passwords);
   } catch (error) {
     console.error("Error fetching passwords:", error);

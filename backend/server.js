@@ -7,7 +7,11 @@ const crypto = require("crypto");
 dotenv.config();
 
 // Encryption and Decryption keys
+<<<<<<< HEAD
 const ENCRYPTION_KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'utf-8');
+=======
+const ENCRYPTION_KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'utf-8');
+>>>>>>> main
 const IV_LENGTH = 16; // For AES, this is always 16
 
 
@@ -68,6 +72,7 @@ app.get("/", async (req, res) => {
     //   return {...item,password:decrypt({iv,encryptedData})};
     // });
     res.status(200).json(passwords);
+
   } catch (error) {
     console.error("Error fetching passwords:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });

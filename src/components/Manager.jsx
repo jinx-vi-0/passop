@@ -8,7 +8,7 @@ const Manager = () => {
   const ref = useRef();
   const passwordRef = useRef();
   const [form, setForm] = useState({
-    id: "",
+    _id: "",
     site: "",
     username: "",
     password: "",
@@ -16,6 +16,11 @@ const Manager = () => {
   const [passwordArray, setPasswordArray] = useState([]);
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [urlErrors, setUrlErrors] = useState([]);
+  const [isSiteFocused, setIsSiteFocused] = useState(false); // To track input focus
+
+  const handleSiteFocus = () => setIsSiteFocused(true);
+  const handleSiteBlur = () => setIsSiteFocused(false);
 
   const getPasswords = async () => {
     let req = await fetch("http://localhost:3000/");
@@ -64,15 +69,19 @@ const Manager = () => {
 
     const allChars = lowerCase + upperCase + numbers + symbols;
     let generatedPassword = "";
+    generatedPassword += lowerCase[Math.floor(Math.random() * lowerCase.length)];  // At least one lowercase
+    generatedPassword += upperCase[Math.floor(Math.random() * upperCase.length)];  // At least one uppercase
+    generatedPassword += numbers[Math.floor(Math.random() * numbers.length)];      // At least one number
+    generatedPassword += symbols[Math.floor(Math.random() * symbols.length)]; 
 
-    for (let i = 0; i < 12; i++) {
+    while(generatedPassword.length < 15 ){
       const randomChar = allChars[Math.floor(Math.random() * allChars.length)];
       generatedPassword += randomChar;
     }
     // Set the generated password into the form's password field
     setForm((prevForm) => ({ ...prevForm, password: generatedPassword }));
   };
-
+  
   const validatePassword = (password) => {
     const errors = Object.keys(passwordRules)
       .map((rule) => {
@@ -84,34 +93,70 @@ const Manager = () => {
 
     return errors.length === 0;
   };
-
   const savePassword = async () => {
-    if (
-      form.site.length > 3 &&
-      form.username.length >= 3 &&
-      validatePassword(form.password)
-    ) {
-      if (form.id) {
+
+    const errors = [];
+
+    // Validate Site URL
+    if (form.site.length <= 3 || !validateURL(form.site)) {
+      errors.push(
+        "Error: Invalid site name. Ensure it meets the required format."
+
+      );
+    }
+
+    // Validate Username
+    if (form.username.length < 3) {
+      errors.push("Error: Username must be at least 3 characters long.");
+    }
+
+    // Validate Password
+    const passwordValidationResult = validatePassword(form.password);
+    if (!passwordValidationResult) {
+      errors.push("Error: Password does not meet the required criteria.");
+    }
+
+    // If there are errors, show them in toast and return
+    if (errors.length > 0) {
+      errors.forEach((error) =>
+        toast(error, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        })
+      );
+      return; // Exit if there are validation errors
+    }
+
+    // Proceed to save the password if all validations pass
+      if (form._id) {
         const updatedPasswords = passwordArray.map((item) =>
-          item._id === form.id ? { ...form } : item
+          item._id === form._id ? { ...form } : item
         );
         setPasswordArray(updatedPasswords);
-        await fetch(`http://localhost:3000/${form.id}`, {
+        await fetch(`http://localhost:3000/${form._id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(form),
         });
+        getPasswords();
       } else {
-        const newPassword = { ...form, id: uuidv4() };
+        const newPassword = { ...form };
         setPasswordArray([...passwordArray, newPassword]);
         await fetch("http://localhost:3000/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newPassword),
         });
+        getPasswords();
       }
 
-      setForm({ id: "", site: "", username: "", password: "" });
+      setForm({ _id: "", site: "", username: "", password: "" });
       toast("Password saved!", {
         position: "top-right",
         autoClose: 5000,
@@ -122,12 +167,7 @@ const Manager = () => {
         progress: undefined,
         theme: "dark",
       });
-    } else {
-      toast(
-        "Error: Password not saved! Ensure the password meets all criteria."
-      );
-    }
-  };
+    } 
 
   const deletePassword = async (id) => {
     const confirmDelete = confirm(
@@ -154,16 +194,37 @@ const Manager = () => {
   };
 
   const editPassword = (id) => {
-    const passwordToEdit = passwordArray.find((item) => item.id === id);
+    const passwordToEdit = passwordArray.find((item) => item._id === id);
     setForm({ ...passwordToEdit });
   };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+
     if (e.target.name === "password") {
       validatePassword(e.target.value);
       setIsTyping(e.target.value.length > 0);
     }
+
+    if (e.target.name === "site") {
+      validateURL(e.target.value);
+    }
+  };
+
+  const validateURL = (url) => {
+    const urlPattern =
+      /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6}(\/\S*)?$/;
+    let errors = [];
+
+    if (!urlPattern.test(url)) {
+      errors.push("Invalid URL format. Must be in format: example.com");
+    }
+    if (url.length === 0) {
+      errors.push("URL field cannot be empty.");
+    }
+    setUrlErrors(errors);
+
+    return errors.length === 0;
   };
 
   return (
@@ -183,15 +244,29 @@ const Manager = () => {
         </p>
 
         <div className="flex flex-col p-4 text-black gap-8 items-center">
-          <input
-            value={form.site}
-            onChange={handleChange}
-            placeholder="Enter website URL"
-            className="rounded-full border border-green-500 w-full p-4 py-1"
-            type="text"
-            name="site"
-            id="site"
-          />
+          <div className="relative w-full">
+            <input
+              value={form.site}
+              onChange={handleChange}
+              onFocus={handleSiteFocus}
+              onBlur={handleSiteBlur}
+              placeholder="Enter website URL"
+              className="rounded-full border border-green-500 w-full p-4 py-1"
+              type="text"
+              name="site"
+              id="site"
+            />
+            {isSiteFocused && urlErrors.length > 0 && (
+              <div className="absolute  -top-20 mt-2 p-2 left-0 border rounded-lg bg-red-100 text-red-700 opacity-75 ">
+                <ul>
+                  {urlErrors.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
           <div className="flex flex-col md:flex-row w-full justify-between gap-8">
             <input
               value={form.username}
@@ -287,7 +362,7 @@ const Manager = () => {
                   src="https://cdn.lordicon.com/jgnvfzqg.json"
                   trigger="hover"
                 ></lord-icon>
-                {form.id ? "Update" : "Save"}
+                {form._id ? "Update" : "Save"}
               </button>
 
               <button
@@ -397,7 +472,7 @@ const Manager = () => {
                         <span
                           className="cursor-pointer mx-1"
                           onClick={() => {
-                            editPassword(item.id);
+                            editPassword(item._id);
                           }}
                         >
                           <lord-icon

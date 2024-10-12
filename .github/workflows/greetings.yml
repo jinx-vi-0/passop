@@ -1,6 +1,10 @@
 name: Greetings
 
-on: [pull_request_target, issues]
+on: 
+  pull_request_target:
+    types: [opened, synchronized, reopened, closed]
+  issues:
+    types: [opened]
 
 jobs:
   greeting:
@@ -9,8 +13,26 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: actions/first-interaction@v1
+      - name: Greet on new issue
+        if: github.event_name == 'issues'
+        uses: actions/first-interaction@v1
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
           issue-message: "👋 Thank you for raising an issue! We appreciate your effort in helping us improve. Our team will review it shortly. Stay tuned!"
-          pr-message: " 🎉 Thank you for your contribution! Your pull request has been submitted successfully. A maintainer will review it as soon as possible. We appreciate your support in making this project better"
+      
+      - name: Greet on new pull request
+        if: github.event_name == 'pull_request'
+        uses: actions/first-interaction@v1
+        with:
+          pr-message: "🎉 Thank you for your contribution! Your pull request has been submitted successfully. A maintainer will review it as soon as possible. We appreciate your support in making this project better."
+
+      - name: Congratulate on merged pull request
+        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+        run: |
+          echo "Congratulations to @${{ github.event.pull_request.user.login }} for merging your pull request! 🎉"
+          echo "If you enjoyed contributing, please consider giving us a star on GitHub and following us for updates!"
+          # Post a comment on the PR
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+            -d "{\"body\": \"Congratulations @${{ github.event.pull_request.user.login }} for merging your pull request! 🎉 If you enjoyed contributing, please consider giving us a star on GitHub and following us for updates!\"}"

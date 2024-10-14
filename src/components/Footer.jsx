@@ -20,13 +20,13 @@ const Footer = () => {
 
         {/* Social Media Links */}
         <div className="flex space-x-6 mb-6">
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+          <a href="https://github.com/jinx-vi-0/passop" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
             <FontAwesomeIcon icon={faGithub} className="text-2xl hover:text-green-400 transition duration-300" />
           </a>
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+          <a href="#" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
             <FontAwesomeIcon icon={faLinkedin} className="text-2xl hover:text-green-400 transition duration-300" />
           </a>
-          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+          <a href="#" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
             <FontAwesomeIcon icon={faTwitter} className="text-2xl hover:text-green-400 transition duration-300" />
           </a>
         </div>

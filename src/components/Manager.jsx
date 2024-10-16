@@ -8,7 +8,7 @@ const Manager = () => {
   const ref = useRef();
   const passwordRef = useRef();
   const [form, setForm] = useState({
-    id: "",
+    _id: "",
     site: "",
     username: "",
     password: "",
@@ -131,7 +131,6 @@ const Manager = () => {
       return; // Exit if there are validation errors
     }
 
-    // Proceed to save the password if all validations pass
     if (form.id) {
       const updatedPasswords = passwordArray.map((item) =>
         item._id === form.id ? { ...form } : item
@@ -191,7 +190,7 @@ const Manager = () => {
   };
 
   const editPassword = (id) => {
-    const passwordToEdit = passwordArray.find((item) => item.id === id);
+    const passwordToEdit = passwordArray.find((item) => item._id === id);
     setForm({ ...passwordToEdit });
   };
 
@@ -359,7 +358,7 @@ const Manager = () => {
                   src="https://cdn.lordicon.com/jgnvfzqg.json"
                   trigger="hover"
                 ></lord-icon>
-                {form.id ? "Update" : "Save"}
+                {form._id ? "Update" : "Save"}
               </button>
 
               <button
@@ -469,7 +468,7 @@ const Manager = () => {
                         <span
                           className="cursor-pointer mx-1"
                           onClick={() => {
-                            editPassword(item.id);
+                            editPassword(item._id);
                           }}
                         >
                           <lord-icon

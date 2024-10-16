@@ -13,23 +13,31 @@ const IV_LENGTH = 16; // For AES, this is always 16
 // Encrypt a password
 const encrypt = (text) => {
   const iv = crypto.randomBytes(IV_LENGTH);
-  const cipher = crypto.createCipheriv("aes-256-cbc", Buffer.from(ENCRYPTION_KEY), iv);
+  const cipher = crypto.createCipheriv(
+    "aes-256-cbc",
+    Buffer.from(ENCRYPTION_KEY),
+    iv
+  );
   let encrypted = cipher.update(text, "utf8", "hex");
   encrypted += cipher.final("hex");
   return iv.toString("hex") + ":" + encrypted; // Store IV with the encrypted password
 };
 
-// Decrypt function
-function decrypt(text) {
-  let ivBuffer = Buffer.from(text.iv, "hex");
-  let encryptedText = text.encryptedData;
+const decrypt = (text) => {
+  const [iv, encryptedData] = text.split(":");
+  const ivBuffer = Buffer.from(iv, "hex");
 
-  let decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(ENCRYPTION_KEY), ivBuffer);
-  let decrypted = decipher.update(encryptedText, "hex", "utf-8");
+  const decipher = crypto.createDecipheriv(
+    "aes-256-cbc",
+    Buffer.from(ENCRYPTION_KEY),
+    ivBuffer
+  );
+  let decrypted = decipher.update(encryptedData, "hex", "utf-8");
+
   decrypted += decipher.final("utf-8");
 
   return decrypted;
-}
+};
 
 // Connecting to the MongoDB Client
 const url = process.env.MONGO_URI;
@@ -107,7 +115,11 @@ app.post("/", async (req, res) => {
     const collection = db.collection("passwords");
     // Encrypt the password before saving
     const encryptedPassword = encrypt(password);
-    const result = await collection.insertOne({ site, username, password: encryptedPassword });
+    const result = await collection.insertOne({
+      site,
+      username,
+      password: encryptedPassword,
+    });
     res.status(201).json({ success: true, result });
   } catch (error) {
     console.error("Error saving password:", error);
@@ -196,9 +208,16 @@ app.get("/export", async (req, res) => {
     const db = client.db(dbName);
     const passwords = await db.collection("passwords").find({}).toArray();
 
+    // Decrypt each password before exporting
+    const decryptedPasswords = passwords.map((password) => ({
+      site: password.site,
+      username: password.username,
+      password: decrypt(password.password), // Directly decrypt the stored password
+    }));
+
     res.setHeader("content-Type", "application/json");
     res.setHeader("content-disposition", "attachment; filename=passwords.json");
-    res.status(200).json(passwords);
+    res.status(200).json(decryptedPasswords);
   } catch (error) {
     console.error("Error exporting passwords:", error);
     res

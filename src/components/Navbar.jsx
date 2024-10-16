@@ -73,9 +73,11 @@ const Navbar = () => {
       <div className="mycontainer flex justify-between items-center px-4 py-5 h-14">
         {/* Left side: Logo */}
         <div className="logo font-bold text-white text-2xl">
-          <span className="text-green-600"> &lt;</span>
-          <span>Pass</span>
-          <span className="text-green-600">OP/&gt;</span>
+          <a href="/" className="block">
+            <span className="text-green-600"> &lt;</span>
+            <span>Pass</span>
+            <span className="text-green-600">OP/&gt;</span>
+          </a>
         </div>
 
         {/* Right side: Buttons */}

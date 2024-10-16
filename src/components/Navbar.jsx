@@ -7,6 +7,7 @@ import UserAccount from "./UserAccount";
 const Navbar = () => {
   const { currentUser } = useAuth();
   const { userLoggedIn } = useAuth();
+  const [isVisible, setIsVisible] = React.useState(false);
   const navigate = useNavigate();
   // function to download passwords
   const downloadPasswords = async () => {
@@ -26,6 +27,10 @@ const Navbar = () => {
       console.error("Error downloading passwords:", error);
       toast("Error downloading passwords", { theme: "dark" });
     }
+  };
+
+  const toggleVisibility = () => {
+    setIsVisible(!isVisible);
   };
 
   // function to import passwords
@@ -69,8 +74,8 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-slate-800 text-white">
-      <div className="mycontainer flex justify-between items-center px-4 py-5 h-14">
+    <nav className="bg-slate-800  text-white">
+      <div className="mycontainer flex justify-between h-16  items-center px-2 lg:px-4 py-5 ">
         {/* Left side: Logo */}
         <div className="logo font-bold text-white text-2xl">
           <a href="/" className="block">
@@ -79,12 +84,12 @@ const Navbar = () => {
             <span className="text-green-600">OP/&gt;</span>
           </a>
         </div>
-
+        <div className="flex gap-4 justify-center items-center">
         {/* Right side: Buttons */}
-        <div className="flex items-center gap-4">
+        <div className={`lg:flex-row flex-col lg:flex bg-slate-800 px-6 py-2 ${isVisible ? "" : "hidden"} items-center gap-4 lg:relative absolute lg:top-0 top-16 shadow-2xl z-50 right-0 `}>
           <button
             onClick={downloadPasswords}
-            className="flex justify-center items-center gap-2 font-semibold bg-green-500 hover:bg-green-600 rounded-full px-4 py-1 border border-green-900"
+            className="flex justify-center items-center w-28 lg:mb-0 mb-2 gap-2 font-semibold bg-green-500 hover:bg-green-600 rounded-full px-2 lg:px-4 py-1 border border-green-900"
           >
             <lord-icon
               src="https://cdn.lordicon.com/ternnbni.json"
@@ -105,7 +110,7 @@ const Navbar = () => {
             onClick={() =>
               document.getElementById("upload-passwords-input").click()
             }
-            className="flex justify-center items-center gap-2  font-semibold bg-green-500 hover:bg-green-600 rounded-full px-4 py-1 border border-green-900"
+            className="flex justify-center items-center w-28 lg:mb-0 mb-2 gap-2  font-semibold bg-green-500 hover:bg-green-600 rounded-full  px-2 lg:px-4 py-1 border border-green-900"
           >
             <lord-icon
               src="https://cdn.lordicon.com/xcrjfuzb.json"
@@ -117,7 +122,7 @@ const Navbar = () => {
           {userLoggedIn ?
             <button
               onClick={() => { doSignOut().then(() => { navigate('/login') }) }} // Navigate to the login page
-              className="flex justify-center items-center gap-2 font-semibold bg-green-500 hover:bg-green-600 rounded-full px-4 py-1 border border-green-900"
+              className="flex justify-center items-center w-28 lg:mb-0 mb-2 gap-2 font-semibold bg-green-500 hover:bg-green-600 rounded-full  px-2 lg:px-4 py-1 border border-green-900"
             >
               <lord-icon
                 src="https://cdn.lordicon.com/xcrjfuzb.json"
@@ -128,20 +133,21 @@ const Navbar = () => {
             :
             <button
               onClick={() => navigate('/sign-in')} // Navigate to the login page
-              className="flex justify-center items-center gap-2 font-semibold bg-green-500 hover:bg-green-600 rounded-full px-4 py-1 border border-green-900"
+              className="flex justify-center items-center w-28 lg:mb-0 mb-2 gap-2 font-semibold  bg-green-500 hover:bg-green-600 rounded-full  px-2 lg:px-4 py-1 border border-green-900"
             >
               <lord-icon
                 src="https://cdn.lordicon.com/xcrjfuzb.json"
                 trigger="hover"
               ></lord-icon>
-              Sign in
+              SignIn
             </button>
 
 
           }
 
 
-
+        </div>
+        <div className="flex">
           {userLoggedIn ? <UserAccount email={currentUser.email} username={currentUser.displayName} />
             : ''}
           <a
@@ -157,7 +163,10 @@ const Navbar = () => {
               />
             </button>
           </a>
+          <button className="text-xl hover:bg-gray-700 px-2 py-1 rounded-md lg:hidden block" onClick={toggleVisibility}>&#9776;</button>
         </div>
+        </div>
+        
       </div>
     </nav>
   );

@@ -1,0 +1,30 @@
+/* src/App.css */
+.fixed {
+    position: fixed;
+    z-index: 999; /* Ensure the sidebar is above other elements */
+  }
+  
+  .sidebar {
+    background-color: white; /* Adjust the background color */
+  }
+  
+  .sidebar button {
+    background-color: transparent; /* Customize the close button */
+    border: none;
+    cursor: pointer;
+  }
+  
+  .sidebar h2 {
+    margin-bottom: 20px; /* Spacing below the heading */
+  }
+  
+  .sidebar a {
+    text-decoration: none; /* Remove underline from links */
+    color: #333; /* Default link color */
+    transition: color 0.3s; /* Smooth color transition */
+  }
+  
+  .sidebar a:hover {
+    color: #007BFF; /* Color change on hover */
+  }
+  

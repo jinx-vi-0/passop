@@ -1,6 +1,6 @@
 import React from "react";
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/authContext/index';
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/authContext/index";
 import UserAccount from "./UserAccount";
 
 const Navbar = () => {
@@ -84,81 +84,88 @@ const Navbar = () => {
           </a>
         </div>
         <div className="flex gap-4 justify-center items-center">
-        {/* Right side: Buttons */}
-        <div className={`lg:flex-row flex-col lg:flex bg-slate-800 px-6 py-2 ${isVisible ? "" : "hidden"} items-center gap-4 lg:relative absolute lg:top-0 top-16 shadow-2xl  right-0 `}>
-          <button
-            onClick={downloadPasswords}
-            className="flex justify-center items-center w-28 lg:mb-0 mb-2 gap-2 font-semibold bg-green-500 hover:bg-green-600 rounded-full px-2 lg:px-4 py-1 border border-green-900"
+          {/* Right side: Buttons */}
+          <div
+            className={`lg:flex-row flex-col lg:flex bg-slate-800 px-6 py-2 ${
+              isVisible ? "" : "hidden"
+            } items-center gap-4 lg:relative absolute lg:top-0 top-16 shadow-2xl  right-0 `}
           >
-            <lord-icon
-              src="https://cdn.lordicon.com/ternnbni.json"
-              trigger="hover"
-            ></lord-icon>
-            Export
-          </button>
-
-          <input
-            type="file"
-            accept=".json"
-            onChange={importPasswords}
-            className="hidden"
-            id="upload-passwords-input"
-          />
-
-          <button
-            onClick={() =>
-              document.getElementById("upload-passwords-input").click()
-            }
-            className="flex justify-center items-center w-28 lg:mb-0 mb-2 gap-2  font-semibold bg-green-500 hover:bg-green-600 rounded-full  px-2 lg:px-4 py-1 border border-green-900"
-          >
-            <lord-icon
-              src="https://cdn.lordicon.com/xcrjfuzb.json"
-              trigger="hover"
-            ></lord-icon>
-            Import
-          </button>
-
-          {!userLoggedIn &&
             <button
-              onClick={() => navigate('/sign-in')} // Navigate to the login page
-              className="flex justify-center items-center w-28 lg:mb-0 mb-2 gap-2 font-semibold  bg-green-500 hover:bg-green-600 rounded-full  px-2 lg:px-4 py-1 border border-green-900"
+              onClick={downloadPasswords}
+              className="flex justify-center items-center w-28 lg:mb-0 mb-2 gap-2 font-semibold bg-green-500 hover:bg-green-600 rounded-full px-2 lg:px-4 py-1 border border-green-900"
+            >
+              <lord-icon
+                src="https://cdn.lordicon.com/ternnbni.json"
+                trigger="hover"
+              ></lord-icon>
+              Export
+            </button>
+
+            <input
+              type="file"
+              accept=".json"
+              onChange={importPasswords}
+              className="hidden"
+              id="upload-passwords-input"
+            />
+
+            <button
+              onClick={() =>
+                document.getElementById("upload-passwords-input").click()
+              }
+              className="flex justify-center items-center w-28 lg:mb-0 mb-2 gap-2  font-semibold bg-green-500 hover:bg-green-600 rounded-full  px-2 lg:px-4 py-1 border border-green-900"
             >
               <lord-icon
                 src="https://cdn.lordicon.com/xcrjfuzb.json"
                 trigger="hover"
               ></lord-icon>
-              SignIn
+              Import
             </button>
 
-
-          }
-
-
-        </div>
-        <div className="flex">
-          <a
-            href="https://github.com/jinx-vi-0"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <button className="text-white mx-3 rounded-full flex justify-center items-center ring-white ring-1 transition duration-300 ease-in-out hover:shadow-lg hover:bg-gray-700">
-              <img
-                className="invert w-10 p-1"
-                src="/icons/github.png"
-                alt="github logo"
-              />
+            {!userLoggedIn && (
+              <button
+                onClick={() => navigate("/sign-in")} // Navigate to the login page
+                className="flex justify-center items-center w-28 lg:mb-0 mb-2 gap-2 font-semibold  bg-green-500 hover:bg-green-600 rounded-full  px-2 lg:px-4 py-1 border border-green-900"
+              >
+                <lord-icon
+                  src="https://cdn.lordicon.com/hrjifpbq.json"
+                  trigger="hover"
+                ></lord-icon>
+                SignIn
+              </button>
+            )}
+          </div>
+          <div className="flex">
+            <a
+              href="https://github.com/jinx-vi-0"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <button className="text-white mx-3 rounded-full flex justify-center items-center ring-white ring-1 transition duration-300 ease-in-out hover:shadow-lg hover:bg-gray-700">
+                <img
+                  className="invert w-10 p-1"
+                  src="/icons/github.png"
+                  alt="github logo"
+                />
+              </button>
+            </a>
+            <button
+              className="text-xl hover:bg-gray-700 px-2 py-1 rounded-md lg:hidden block"
+              onClick={toggleVisibility}
+            >
+              &#9776;
             </button>
-          </a>
-          <button className="text-xl hover:bg-gray-700 px-2 py-1 rounded-md lg:hidden block" onClick={toggleVisibility}>&#9776;</button>
+          </div>
+
+          {userLoggedIn ? (
+            <UserAccount
+              email={currentUser.email}
+              username={currentUser.displayName}
+            />
+          ) : (
+            ""
+          )}
         </div>
-
-
-        {userLoggedIn ? <UserAccount email={currentUser.email} username={currentUser.displayName} />
-            : ''}
-        </div>
-
-        
-        
       </div>
     </nav>
   );

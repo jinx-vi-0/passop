@@ -33,7 +33,6 @@
     </tbody>
 </table>
 
-
 ## Overview 📌
 <ul>
   <li>🔒 **<b>PassOP</b>** is a simple and secure password manager built with React that allows users to save, view, edit, and delete their passwords.</li>

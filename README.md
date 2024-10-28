@@ -46,6 +46,8 @@
   <li>❌ <b>Delete Password</b>: Remove any saved password you no longer need.</li>
   <li>📋 <b>Copy to Clipboard</b>: Quickly copy website URLs, usernames, and passwords to your clipboard.</li>
   <li>👁️ <b>Show/Hide Password</b>: Toggle visibility of passwords for added convenience.</li>
+🔐 <b>Enhanced Security</b>: Implemented AES-256 encryption and PBKDF2 for improved password security.
+
 </ul>
 
 ## Open-Source-Programmes 🤝

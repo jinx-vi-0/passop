@@ -1,5 +1,5 @@
 name: PR Issue Checker
-# Created my @smog-root.
+# Created by @smog-root.
 on:
   pull_request:
     types: [opened, edited]
@@ -16,18 +16,21 @@ jobs:
         id: check_pr_description
         run: |
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
+
+          # Check if PR description is empty
           if [[ -z "$PR_DESCRIPTION" ]]; then
-            echo "PR description is missing."
+            echo "##[error]PR description is missing."
             exit 1
           fi
 
+          # Check if PR description includes 'Fixes #<issue-number>'
           if [[ ! "$PR_DESCRIPTION" =~ Fixes\ #[0-9]+ ]]; then
-            echo "The PR description should include 'Fixes #<issue-number>' if not addressing any issue."
-            echo "##[error]Fixes #NEW must be included in the description."
+            echo "##[error]The PR description should include 'Fixes #<issue-number>' if addressing an issue."
             exit 1
           fi
 
           echo "PR description is valid."
 
       - name: Output result
+        if: success()
         run: echo "All checks passed."

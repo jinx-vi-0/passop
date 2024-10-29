@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Navigate, Link } from 'react-router-dom'
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'
+import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../contexts/authContext/index'
 import { doCreateUserWithEmailAndPassword } from '../firebase/auth'
-import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'
 
 const Register = () => {
 
@@ -11,7 +11,7 @@ const Register = () => {
     const [confirmPassword, setconfirmPassword] = useState('')
     const [isRegistering, setIsRegistering] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
-    const [showPassword, setShowPassword] = useState(false); 
+    const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const { userLoggedIn } = useAuth()

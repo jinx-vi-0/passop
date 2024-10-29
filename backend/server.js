@@ -69,8 +69,7 @@ app.get("/", async (req, res) => {
     const collection = db.collection("passwords");
     const passwords = await collection.find({}).toArray();
     const decryptedPassword = passwords.map((item) => {
-      const [iv, encryptedData] = item.password.split(':');
-      return { ...item, password: decrypt({ iv, encryptedData }) };
+    return { ...item, password: decrypt(item.password) };
     });
     res.status(200).json(decryptedPassword);
   } catch (error) {

@@ -1,13 +1,16 @@
 {
-  "name": "passop",
+  "name": "passop",  
+  "version": "1.0.0",
+  "description": "",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
+  "main": "index.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",
@@ -16,6 +19,7 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@mui/icons-material": "^6.1.4",
     "@mui/material": "^6.1.4",
+    "bcrypt": "^5.1.1",  
     "dotenv": "^16.4.5",
     "firebase": "^10.14.1",
     "install": "^0.13.0",

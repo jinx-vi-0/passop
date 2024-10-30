@@ -108,11 +108,12 @@ const Manager = () => {
       errors.push("Error: Username must be at least 3 characters long.");
     }
 
-    // Validate Password
-    const passwordValidationResult = validatePassword(form.password);
-    if (!passwordValidationResult) {
-      errors.push("Error: Password does not meet the required criteria.");
-    }
+    // PASSWORD VALIDATION NOT REQUIRED AS THE PASSWORD HAS ALREADY BEEN CREATED BY USER JUST NEEDED TO BE SAVED
+
+    // const passwordValidationResult = validatePassword(form.password);
+    // if (!passwordValidationResult) {
+    //   errors.push("Error: Password does not meet the required criteria.");
+    // }
 
     // If there are errors, show them in toast and return
     if (errors.length > 0) {

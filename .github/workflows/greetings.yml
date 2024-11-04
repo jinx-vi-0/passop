@@ -28,14 +28,14 @@ jobs:
           pr-message: "Thank you @${{ github.actor }} for your contribution! Your pull request has been submitted successfully. A maintainer will review it as soon as possible. We appreciate your support in making this project better."
 
       # Congratulate on closed issue
-      - name: Congratulate on closed issue
-        if: github.event_name == 'issues' && github.event.action == 'closed'
-        run: |
-          echo "Congratulations to @${{ github.event.issue.user.login }} for closing your issue!"
-          echo "If you enjoyed contributing, please consider giving us a ⭐ and following us for updates!"
-          # Post a comment on the issue
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments \
-            -d "{\"body\": \"Congratulations to @${{ github.event.issue.user.login }} for closing your issue! If you enjoyed contributing, please consider giving us a ⭐ on GitHub and following us for updates!\"}"
+      # - name: Congratulate on closed issue
+      #   if: github.event_name == 'issues' && github.event.action == 'closed'
+      #   run: |
+      #     echo "Congratulations to @${{ github.event.issue.user.login }} for closing your issue!"
+      #     echo "If you enjoyed contributing, please consider giving us a ⭐ and following us for updates!"
+      #     # Post a comment on the issue
+      #     curl -X POST \
+      #       -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+      #       -H "Accept: application/vnd.github.v3+json" \
+      #       https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments \
+      #       -d "{\"body\": \"Congratulations to @${{ github.event.issue.user.login }} for closing your issue! If you enjoyed contributing, please consider giving us a ⭐ on GitHub and following us for updates!\"}"

@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "name": "passop",  
   "version": "1.0.0",
   "description": "",
@@ -44,7 +43,7 @@
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "vite": "^5.1.4"
-=======
+
   "name": "password-encryption",
   "version": "1.0.0",
   "main": "index.js",
@@ -57,6 +56,6 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1"
->>>>>>> bde57563fe2f2be143486459ad1d34bc19660484
+
   }
 }

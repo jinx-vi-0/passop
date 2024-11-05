@@ -1,1 +1,7 @@
+
+# Auto detect text files and perform LF normalization
 * text=auto
+
+# Define specific files with desired line endings
+*.sh text eol=lf
+*.bat text eol=crlf

@@ -1,11 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/authContext/index";
 import UserAccount from "./UserAccount";
+import { useRecoilValue } from "recoil";
+import { currentUserState, userLoggedInState } from "../atoms/authState";
 
 const Navbar = () => {
-  const { currentUser } = useAuth();
-  const { userLoggedIn } = useAuth();
+  const  currentUser  = useRecoilValue(currentUserState);
+  const  userLoggedIn  = useRecoilValue(userLoggedInState);
   const [isVisible, setIsVisible] = React.useState(false);
   const navigate = useNavigate();
   // function to download passwords

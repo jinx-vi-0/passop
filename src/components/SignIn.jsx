@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { doSignInWithEmailAndPassword, doSignInWithGoogle } from '../firebase/auth';
-import { useAuth } from '../contexts/authContext/index';
+
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'; // Importing React Icons
+import { useRecoilValue } from 'recoil';
+import { userLoggedInState } from '../atoms/authState';
 
 const SignIn = () => {
-    const { userLoggedIn } = useAuth();
+    const { userLoggedIn } = useRecoilValue(userLoggedInState);
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');

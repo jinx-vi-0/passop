@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'
 import { Link, Navigate } from 'react-router-dom'
-import { useAuth } from '../contexts/authContext/index'
 import { doCreateUserWithEmailAndPassword } from '../firebase/auth'
+import { useRecoilValue } from 'recoil'
+import { userLoggedInState } from '../atoms/authState'
 
 const Register = () => {
 
@@ -14,7 +15,7 @@ const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const { userLoggedIn } = useAuth()
+    const { userLoggedIn } = useRecoilValue(userLoggedInState)
 
     const onSubmit = async (e) => {
         e.preventDefault()

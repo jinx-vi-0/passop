@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+    <url>
+        <loc>https://github.com/jinx-vi-0/passop</loc>
+        <lastmod>2024-11-08</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://github.com/jinx-vi-0/passop#readme</loc>
+        <lastmod>2024-11-08</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://github.com/jinx-vi-0/passop/issues</loc>
+        <lastmod>2024-11-08</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://github.com/jinx-vi-0/passop/pulls</loc>
+        <lastmod>2024-11-08</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <!-- Add more URLs as needed -->
+</urlset>

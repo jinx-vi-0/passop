@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /private/
+Allow: /
+Sitemap: https://github.com/jinx-vi-0/passop/sitemap.xml

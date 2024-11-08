@@ -82,16 +82,28 @@ app.get("/", async (req, res) => {
 app.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Validate ID format (optional but recommended)
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid ID format" });
+    }
+
     const db = client.db(dbName);
     const collection = db.collection("passwords");
+    
+    // Fetch the password item from the database
     const item = await collection.findOne({ _id: new ObjectId(id) });
 
+    // Check if the password exists
     if (!item) {
       return res.status(404).json({ success: false, message: "Password not found" });
     }
 
+    // Split and decrypt the password
     const [iv, encryptedData] = item.password.split(':');
     const decryptedPassword = decrypt({ iv, encryptedData });
+
+    // Return the item with the decrypted password
     res.status(200).json({ ...item, password: decryptedPassword });
   } catch (error) {
     console.error("Error fetching password:", error);
@@ -173,21 +185,26 @@ app.delete("/:id", async (req, res) => {
     const { id } = req.params;
 
     if (!id) {
-      return res
-        .status(400)
-        .json({ success: false, message: "ID is required" });
+      return res.status(400).json({ success: false, message: "ID is required" });
     }
 
     const db = client.db(dbName);
     const collection = db.collection("passwords");
-    const result = await collection.deleteOne({
-      _id: new ObjectId(id),
-    });
 
+    // Step 1: Find the password by ID
+    const password = await collection.findOne({ _id: new ObjectId(id) });
+
+    // Step 2: Check if the password exists
+    if (!password) {
+      return res.status(404).json({ success: false, message: "Password not found" });
+    }
+
+    // Step 3: Proceed to delete the password
+    const result = await collection.deleteOne({ _id: new ObjectId(id) });
+
+    // Step 4: Confirm deletion
     if (result.deletedCount === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Password not found" });
+      return res.status(404).json({ success: false, message: "Password could not be deleted" });
     }
 
     res.status(200).json({

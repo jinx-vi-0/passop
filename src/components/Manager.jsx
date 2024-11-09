@@ -166,28 +166,50 @@ const Manager = () => {
   };
 
   const deletePassword = async (id) => {
-    const confirmDelete = confirm(
-      "Do you really want to delete this password?"
-    );
+    const confirmDelete = confirm("Do you really want to delete this password?");
+    
     if (confirmDelete) {
-      setPasswordArray(passwordArray.filter((item) => item._id !== id));
-      await fetch(`http://localhost:3000/${id}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
+        try {
+            // Send DELETE request to the server
+            const response = await fetch(`http://localhost:3000/${id}`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+            });
 
-      toast("Password Deleted!", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+            // Check if the response is OK (status in the range 200-299)
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to delete password");
+            }
+
+            // Update local state only after successful deletion
+            setPasswordArray(passwordArray.filter((item) => item._id !== id));
+
+            // Show success message
+            toast("Password Deleted!", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+        } catch (error) {
+            // Handle errors (e.g., network issues, server errors)
+            console.error("Error deleting password:", error);
+            toast.error(`Error: ${error.message}`, {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+        }
     }
-  };
+};
 
   const editPassword = (id) => {
     const passwordToEdit = passwordArray.find((item) => item._id === id);
